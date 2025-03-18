@@ -10,6 +10,7 @@ function roleMiddleware(roles){
             let data = jwt.verify(token, 'sekret')
             if(roles.includes(data.role)){
                 console.log(roles, data.role);
+                req.user = data
                 return next()
             }
             return res.status(400).send(`Not allowed for ${data.role}, only for ${roles}`)
