@@ -11,42 +11,41 @@ const User = db.define('user', {
   username: {
     type: DataTypes.STRING,
     allowNull: false,
-  },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    phone:{
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    image:{
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-    role:{
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: 'user',
-    },
-    region_id:{
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    status:{
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: 'PENDING',
-    },
-    year:{
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    }
-})
+},
+email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+},
+password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+},
+phone:{
+    type: DataTypes.STRING,
+    allowNull: false,
+},
+image:{
+    type: DataTypes.STRING,
+    allowNull: true,
+},
+role:{
+    type: DataTypes.STRING,
+    defaultValue: 'user',
+},
+region_id:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+},
+status:{
+    type: DataTypes.STRING,
+    defaultValue: 'PENDING',
+},
+year:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+}
+},
+{timestamps: false})
 
 const UserValidation = joi.object({
     username: joi.string().required(),
@@ -54,10 +53,16 @@ const UserValidation = joi.object({
     password: joi.string().required(),
     phone: joi.string().required(),
     image: joi.string(),
-    role: joi.string(),
+    role: joi.string().valid("admin", "user", "super-admin", "seller"),
     region_id: joi.number().required(),
     status: joi.string(),
-    year: joi.number().required()
+    year: joi.number().min(0).max(2026).required()
 })
 
-module.exports = { user, UserValidation }
+const LoginValidation = joi.object({
+    username: joi.string().required(),
+    email: joi.string().email().required(),
+    password: joi.string().required()
+})
+
+module.exports = { User, UserValidation, LoginValidation}
