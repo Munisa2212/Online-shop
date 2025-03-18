@@ -1,5 +1,6 @@
 const {db} = require("../config/db")
 const {dataTypes} = require("sequelize")
+const joi = require("joi")
 
 const product  = db.define("Product",{
     id:{
@@ -33,4 +34,12 @@ const product  = db.define("Product",{
     }
 })
 
-module.exports = product;
+const ProductValadation = joi.object({
+    name: joi.string().required(),
+    description: joi.string().required(),
+    price: joi.number().required(),
+    image: joi.string().required(),
+    author_id: joi.number().required(),
+    category_id: joi.number().required()
+})
+module.exports = {product, ProductValadation};
