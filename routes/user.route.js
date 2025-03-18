@@ -32,7 +32,7 @@ router.post("/register", async(req, res)=>{
         console.log(otp);
         
         sendEmail(email, otp)
-        await sendSMS(phone, otp)
+        // await sendSMS(phone, otp)
         res.send(`/verify email\nToken sent to ${email}`)
     } catch (error) {
         res.status(404).send(error)
