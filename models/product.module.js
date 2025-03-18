@@ -1,36 +1,40 @@
 const {db} = require("../config/db")
-const {dataTypes} = require("sequelize")
+const {DataTypes} = require("sequelize")
 const joi = require("joi")
 
 const Product  = db.define("Product",{
     id:{
-        type: dataTypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true
     },
     name:{
-        type: dataTypes.STRING,
+        type: DataTypes.STRING,
         allowNull: false
     },
     description:{
-        type: dataTypes.STRING,
+        type: DataTypes.STRING,
         allowNull: false
     },
     price:{
-        type: dataTypes.FLOAT,
+        type: DataTypes.FLOAT,
         allowNull: false
     },
     image:{
-        type: dataTypes.STRING,
+        type: DataTypes.STRING,
         allowNull: false
     },
     author_id:{
-        type: dataTypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     category_id:{
-        type: dataTypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false
+    },
+    count:{
+        type: DataTypes.INTEGER,
+        defaultValue: 1
     }
 })
 
@@ -40,6 +44,7 @@ const ProductValadation = joi.object({
     price: joi.number().required(),
     image: joi.string(),
     author_id: joi.number().required(),
-    category_id: joi.number().required()
+    category_id: joi.number().required(),
+    count: joi.number().required()
 })
 module.exports = {Product, ProductValadation};
