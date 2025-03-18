@@ -16,7 +16,7 @@ route.get('/', async (req, res) => {
 
 route.post('/', async (req, res) => {
   try {
-    let one = await oneRegion.findOne({
+    let one = await Region.findOne({
       where: {
         name: req.body.name,
       },
