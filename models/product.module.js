@@ -2,7 +2,7 @@ const {db} = require("../config/db")
 const {dataTypes} = require("sequelize")
 const joi = require("joi")
 
-const product  = db.define("Product",{
+const Product  = db.define("Product",{
     id:{
         type: dataTypes.INTEGER,
         autoIncrement: true,
@@ -42,4 +42,4 @@ const ProductValadation = joi.object({
     author_id: joi.number().required(),
     category_id: joi.number().required()
 })
-module.exports = {product, ProductValadation};
+module.exports = {Product, ProductValadation};
