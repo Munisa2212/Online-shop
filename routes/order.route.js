@@ -44,5 +44,4 @@ app.get("/",roleMiddleware(["admin"]), async(req, res)=>{
     }
 })
 
-
 module.exports = app
