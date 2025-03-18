@@ -38,7 +38,7 @@ const ProductValadation = joi.object({
     name: joi.string().required(),
     description: joi.string().required(),
     price: joi.number().required(),
-    image: joi.string().required(),
+    image: joi.string(),
     author_id: joi.number().required(),
     category_id: joi.number().required()
 })
