@@ -3,7 +3,7 @@ const { Category } = require('./category.module')
 const { Region } = require('./region.module')
 const { User } = require('./user.module')
 const { Order } = require('./order.module')
-const { OrderItem } = require('./order_item.module')
+const { Order_item } = require('./order_item.module')
 const { Comment } = require('./comment.module')
 
 User.hasMany(Order, {
@@ -17,23 +17,23 @@ Order.belongsTo(User, {
   onUpdate: 'CASCADE',
 })
 
-Order.hasMany(OrderItem, {
+Order.hasMany(Order_item, {
   foreignKey: 'order_id',
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
 })
-OrderItem.belongsTo(Order, {
+Order_item.belongsTo(Order, {
   foreignKey: 'order_id',
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
 })
 
-Product.hasMany(OrderItem, {
+Product.hasMany(Order_item, {
   foreignKey: 'product_id',
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
 })
-OrderItem.belongsTo(Product, {
+Order_item.belongsTo(Product, {
   foreignKey: 'product_id',
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
@@ -86,7 +86,7 @@ User.belongsTo(Region, {
 module.exports = {
   User,
   Order,
-  OrderItem,
+  Order_item,
   Comment,
   Product,
   Category,
