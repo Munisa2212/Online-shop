@@ -18,7 +18,7 @@ const Category = db.define(
 )
 
 const CategoryValidation = joi.object({
-    name: joi.number().required()
+    name: joi.string().required()
 })
 
 module.exports = {Category, CategoryValidation}
