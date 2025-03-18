@@ -3,7 +3,7 @@ const { Product } = require('../models/index.module')
 const express = require('express')
 const route = express.Router()
 const { Op } = require('sequelize')
-const roleMiddleware = require('../middleware/roleAuth')
+const {roleMiddleware} = require('../middleware/roleAuth')
 
 route.post('/', roleMiddleware(['admin', 'seller']), async (req, res) => {
   try {
