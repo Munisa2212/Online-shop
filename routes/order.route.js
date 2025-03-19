@@ -4,6 +4,124 @@ const { Order_item, Order_item_Validation } = require("../models/order_item.modu
 const {orderLogger} = require("../logger")
 const app = require("express").Router()
 
+
+
+
+/**
+ * @swagger
+ * tags:
+ *   name: Order
+ *   description: Order management
+ */
+
+/**
+ * @swagger
+ * /order-products:
+ *   post:
+ *     summary: Create a new order
+ *     tags: [Order]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - product_id
+ *               - count
+ *             properties:
+ *               product_id:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 example: [1, 2, 3]
+ *               count:
+ *                 type: integer
+ *                 example: 2
+ *     responses:
+ *       201:
+ *         description: Order created successfully
+ *       400:
+ *         description: Validation error
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /order-delete/{id}:
+ *   delete:
+ *     summary: Delete an order
+ *     tags: [Order]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Order ID
+ *     responses:
+ *       200:
+ *         description: Order deleted successfully
+ *       404:
+ *         description: Order not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /order:
+ *   get:
+ *     summary: Get all orders for a user
+ *     tags: [Order]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of orders
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /order/{id}:
+ *   put:
+ *     summary: Update an order
+ *     tags: [Order]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Order ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: "shipped"
+ *     responses:
+ *       200:
+ *         description: Order updated successfully
+ *       400:
+ *         description: Validation error
+ *       500:
+ *         description: Server error
+ */
+
 app.post("/order-products", roleMiddleware(["admin", "seller"]), async(req, res)=>{
     const user_id = req.user.id
     const {product_id, count} = req.body
