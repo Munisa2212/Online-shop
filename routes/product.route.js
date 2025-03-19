@@ -36,7 +36,6 @@ route.post('/', roleMiddleware(['admin', 'seller']), async (req, res) => {
   } catch (error) {
     res.status(500).send(error.message)
     productLogger.log('error', 'Product da error!', error.message)
-    return
   }
 })
 
@@ -95,7 +94,6 @@ route.get('/:id', async (req, res) => {
   } catch (error) {
     res.status(500).send(error.message)
     productLogger.log('info', 'server error', error.message)
-    return
   }
 })
 
@@ -125,7 +123,6 @@ route.put('/:id', roleMiddleware(['super-admin']), async (req, res) => {
   } catch (error) {
     res.status(500).send(error.message)
     productLogger.log('info', 'Product update error', error.message)
-    return
   }
 })
 
@@ -144,7 +141,6 @@ route.delete('/:id', roleMiddleware(['admin']), async (req, res) => {
   } catch (error) {
     res.status(500).send(error.message)
     Product.log('error', 'Product delete error', error.message)
-    return
   }
 })
 
