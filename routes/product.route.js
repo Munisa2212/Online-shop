@@ -13,6 +13,7 @@ route.post('/', roleMiddleware(['admin', 'seller']), async (req, res) => {
     let newProduct = await Product.create({
       name: req.body.name,
       description: req.body.description,
+      count: req.body.count,
       price: req.body.price,
       image: req.body.image,
       author_id: req.body.author_id,
