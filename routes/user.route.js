@@ -40,6 +40,14 @@ totp.options = { step: 300, digits: 5 };
  *                 type: string
  *               phone:
  *                 type: string
+ *               role:  
+ *                 type: string
+ *               image: 
+ *                 type: string
+ *               region_id:
+ *                 type: number
+ *               year:
+ *                 type: number
  *     responses:
  *       200:
  *         description: Registration successful, OTP sent.

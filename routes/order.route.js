@@ -75,7 +75,7 @@ const app = require("express").Router()
 
 /**
  * @swagger
- * /order/order:
+ * /order:
  *   get:
  *     summary: Get all orders for a user
  *     tags: [Order]
@@ -90,7 +90,7 @@ const app = require("express").Router()
 
 /**
  * @swagger
- * /order/order/{id}:
+ * order/{id}:
  *   put:
  *     summary: Update an order
  *     tags: [Order]
