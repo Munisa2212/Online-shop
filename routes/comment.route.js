@@ -2,7 +2,7 @@ const { CommentValidation } = require("../models/comment.module");
 const { Comment } = require("../models/index.module")
 const app = require("express").Router()
 
-app.post("/", async(req, res)=>{
+app.post("/",roleMiddleware(["admin", "seller"]), async(req, res)=>{
     const {user_id, product_id, comment} = req.body
     try {
         let { error } = CommentValidation.validate(req.body);
@@ -15,7 +15,7 @@ app.post("/", async(req, res)=>{
     }
 })
 
-app.get("/", async(req, res)=>{
+app.get("/", roleMiddleware(["admin", "seller"]), async(req, res)=>{
     try {
         const data = await Comment.findAll()
         res.send(data)
@@ -24,7 +24,7 @@ app.get("/", async(req, res)=>{
     }
 })
 
-app.put("/:id", async(req, res)=>{
+app.put("/:id", roleMiddleware(["super-admin"]), async(req, res)=>{
     const {id} = req.params
     try {
         let { error } = CommentValidation.validate(req.body);
@@ -38,7 +38,7 @@ app.put("/:id", async(req, res)=>{
     }
 })
 
-app.delete("/:id", async(req, res)=>{
+app.delete("/:id", roleMiddleware(["admin", "seller"]), async(req, res)=>{
     const {id} = req.params
     try {
         const data = await Comment.findByPk(id)
