@@ -1,5 +1,5 @@
 const { roleMiddleware } = require("../middleware/roleAuth")
-const { Order } = require("../models/index.module")
+const { Order, User } = require("../models/index.module")
 const { Order_item, Order_item_Validation } = require("../models/order_item.module")
 
 const app = require("express").Router()
@@ -43,7 +43,7 @@ app.get("/",roleMiddleware(["admin"]), async(req, res)=>{
     try {
         const data = await Order.findAll({
             where: { user_id },
-            include: [{ model: Order_item , attributes: ["user_id"]}],
+            include: [{ model: Order_item , attributes: ["count"]}, { model: User , attributes: ["username"]}],
         });
         res.send(data)
     } catch (error) {
