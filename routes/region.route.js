@@ -80,7 +80,7 @@ route.get("/", roleMiddleware(["admin"]), async (req, res) => {
  *       400:
  *         description: Region already exists or creation failed
  */
-route.post("/", roleMiddleware(["admin"]), async (req, res) => {
+route.post("/", async (req, res) => {
   try {
     let existingRegion = await Region.findOne({ where: { name: req.body.name } });
     if (existingRegion) {
