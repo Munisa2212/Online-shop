@@ -1,14 +1,16 @@
 const router = require("express").Router()
-const {UserValidation, LoginValidation} = require("../models/user.module")
-const {User} = require("../models/index.module")
+const {User, UserValidation, LoginValidation} = require("../models/user.module")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const {totp} = require("otplib")
 const { sendEmail } = require("../config/transporter")
-const sendSMS = require("../config/eskiz")
+// const sendSMS = require("../config/eskiz")
 const {roleMiddleware} = require("../middleware/roleAuth")
+const {Region} = require("../models/index.module")
+const { Op } = require("sequelize")
 
 totp.options = {step: 300, digits: 5}
+
 router.post("/register", async(req, res)=>{
     try {
         let {error} = UserValidation.validate(req.body)
@@ -105,7 +107,19 @@ router.post("/resend-otp", async (req, res) => {
 
 router.get("/", roleMiddleware(["admin"]),async (req, res) => {
     try {
-        let users = await User.findAll();
+        let {username, email, region_id, role, status} = req.query
+        const where = {}
+
+        if (username) where.username = { [Op.like]: `${username}%`}
+        if (email) where.email = { [Op.like]: `${email}%`}
+        if(region_id) where.region_id = region_id
+        if(role) where.role = role
+        if(status) where.status = status
+
+        let users = await User.findAll({
+            where,
+            include: [{model: Region, attributes: ["name"]}]
+        });
         res.send(users);
     } catch (error) {
         res.status(500).send(error);

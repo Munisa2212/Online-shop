@@ -1,5 +1,7 @@
+const { Op } = require("sequelize");
+const { roleMiddleware } = require("../middleware/roleAuth");
 const { CommentValidation } = require("../models/comment.module");
-const { Comment } = require("../models/index.module")
+const { Comment, User, Product } = require("../models/index.module")
 const app = require("express").Router()
 const { roleMiddleware } = require("../middleware/roleAuth")
 
@@ -16,15 +18,42 @@ app.post("/",roleMiddleware(["admin", "seller"]), async(req, res)=>{
     }
 })
 
-app.get("/", roleMiddleware(["admin", "seller"]), async(req, res)=>{
+
+app.get("/", roleMiddleware(["admin", "seller"]), async (req, res) => {
     try {
-        const data = await Comment.findAll()
+        let { user_id, comment_id, comment, page = 1, limit = 10 } = req.query;
+        const one = {};
+        page = parseInt(page);
+        limit = parseInt(limit);
+        const offset = (page - 1) * limit;
+
+        if (user_id) one.user_id = { [Op.like]: `%${user_id}%` };
+        if (comment_id) one.comment_id = { [Op.like]: `%${comment_id}%` };
+        if (comment) one.comment = { [Op.like]: `%${comment}%` };
+
+        const { rows } = await Comment.findAndCountAll({
+            where: one,
+            limit: limit,
+            offset: offset,
+            include: [{ model: User}, { model: Product}]
+        });
+
+        res.send(rows);
+    } catch (error) {
+        categoryLogger.log("error", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get("/:id", async(req, res)=>{
+    const {id} = req.params
+    try {
+        const data = await Comment.findByPk(id)
         res.send(data)
     } catch (error) {
         res.status(500).send(error)
     }
 })
-
 app.put("/:id", roleMiddleware(["super-admin"]), async(req, res)=>{
     const {id} = req.params
     try {

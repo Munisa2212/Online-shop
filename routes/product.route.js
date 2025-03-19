@@ -63,9 +63,6 @@ route.get('/', async (req, res) => {
     })
 
     res.status(200).send({
-      total: products.count,
-      page: parseInt(page),
-      limit: parseInt(limit),
       products: products.rows,
     })
   } catch (error) {
