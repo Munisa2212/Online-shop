@@ -22,9 +22,6 @@ const route = express.Router();
  *         - author_id
  *         - category_id
  *       properties:
- *         id:
- *           type: integer
- *           description: Auto-generated ID
  *         name:
  *           type: string
  *           description: Name of the product

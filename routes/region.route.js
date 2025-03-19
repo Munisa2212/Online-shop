@@ -71,6 +71,7 @@ route.get("/", roleMiddleware(["admin"]), async (req, res) => {
  *         application/json:
  *           schema:
  *             type: object
+ *              example: Buxoro
  *             properties:
  *               name:
  *                 type: string

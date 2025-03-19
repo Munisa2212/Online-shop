@@ -1,2 +1,11 @@
 {"level":"info","message":"order created successfully","module":"order"}
 {"level":"info","message":"comment created successfully","module":"auth"}
+{"level":"info","message":"/register with 1 id","module":"user"}
+{"level":"info","message":"/register with 2 id","module":"user"}
+{"level":"info","message":"/register with 3 id","module":"user"}
+{"level":"info","message":"/register with 1 id","module":"user"}
+{"level":"info","message":"/verify with ibodullayevamunisa570@gmail.com","module":"user"}
+{"level":"info","message":"/login with 1 id","module":"user"}
+{"level":"info","message":"category post created","module":"product"}
+{"level":"info","message":"comment created successfully","module":"auth"}
+{"level":"info","message":"order created successfully","module":"order"}

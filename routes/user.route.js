@@ -34,20 +34,28 @@ totp.options = { step: 300, digits: 5 };
  *             properties:
  *               username:
  *                 type: string
+ *                  example: Munisa
  *               password:
  *                 type: string
+ *                  example: hello22
  *               email:
  *                 type: string
+ *                  example: munisaforuse22@gmail.com
  *               phone:
  *                 type: string
+ *                  example: +998882452212
  *               role:  
  *                 type: string
+ *                  example: admin
  *               image: 
  *                 type: string
+ *                  example: photo
  *               region_id:
  *                 type: number
+ *                  example: 1
  *               year:
  *                 type: number
+ *                  example: 2005
  *     responses:
  *       200:
  *         description: Registration successful, OTP sent.
@@ -101,8 +109,10 @@ router.post("/register", async (req, res) => {
  *             properties:
  *               email:
  *                 type: string
+ *                  example: munisaforuse22@gmail.com
  *               otp:
  *                 type: string
+ *                  example: 11111
  *     responses:
  *       200:
  *         description: Email successfully verified.
@@ -143,8 +153,10 @@ router.post("/verify", async (req, res) => {
  *             properties:
  *               email:
  *                 type: string
+ *                  example: munisaforuse22@gmail.com
  *               password:
  *                 type: string
+ *                  example: hello22
  *     responses:
  *       200:
  *         description: Login successful.
