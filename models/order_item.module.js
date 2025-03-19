@@ -26,7 +26,7 @@ const Order_item = db.define(
 )
 
 const Order_item_Validation = joi.object({
-    order_id: joi.number().required(),
+    order_id: joi.number(),
     product_id: joi.array().required(),
     count: joi.number().required(),
 })

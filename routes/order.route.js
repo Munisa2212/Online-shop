@@ -1,6 +1,6 @@
 const { roleMiddleware } = require("../middleware/roleAuth")
-const { Order } = require("../models/order.module")
-const { Order_item } = require("../models/order_item.module")
+const { Order } = require("../models/index.module")
+const { Order_item, Order_item_Validation } = require("../models/order_item.module")
 
 const app = require("express").Router()
 
@@ -8,12 +8,17 @@ app.post("/order-products", roleMiddleware(["admin", "seller"]), async(req, res)
     const user_id = req.user.id
     const {product_id, count} = req.body
     try {
+        let { error } = Order_item_Validation.validate(req.body);
+        if (error) return res.status(400).send({ error: error.details[0].message });
+
         const order = await Order.create({user_id})
         
-        product_id.forEach(async element => {
-            await Order_item.create({order_id: order.id, product_id: element, count})
-        });
-        res.send(order)
+        for (const element of product_id) {
+            await Order_item.create({ order_id: order.id, product_id: element, count });
+        }
+
+        const data = await Order_item.findAll();
+        res.send(data);
     } catch (error) {
         res.status(500).send(error)
     }
@@ -23,16 +28,18 @@ app.delete("/order-delete/:id", roleMiddleware(["admin", "seller"]), async(req, 
     const {id} = req.params
     try {
         const data = await Order.findByPk(id)
+        if (!data) {
+            return res.status(404).send({ message: "Order not found" });
+        }
         await data.destroy()
         res.send(data)
     } catch (error) {
-        res.send(error)
+        res.status(500).send(error)
     }
 })
 
 app.get("/",roleMiddleware(["admin"]), async(req, res)=>{
     const user_id = req.user.id
-    console.log(user_id)
     try {
         const data = await Order.findAll({
             where: { user_id },
@@ -44,4 +51,14 @@ app.get("/",roleMiddleware(["admin"]), async(req, res)=>{
     }
 })
 
+app.put("/:id", async(req, res)=>{
+    const {id} = req.params
+    try {
+        const data = await Order.findByPk(id)
+        await data.update(req.body)
+        res.send(data)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
 module.exports = app

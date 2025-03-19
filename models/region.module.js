@@ -18,7 +18,7 @@ const Region = db.define(
 )
 
 const RegionValidation = joi.object({
-    name: joi.number().required()
+    name: joi.string().required()
 })
 
 module.exports = {Region, RegionValidation}
