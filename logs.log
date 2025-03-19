@@ -9,3 +9,4 @@
 {"level":"info","message":"category post created","module":"product"}
 {"level":"info","message":"comment created successfully","module":"auth"}
 {"level":"info","message":"order created successfully","module":"order"}
+{"level":"error","message":"/register error","module":"user"}

@@ -16,13 +16,11 @@ const CommentRoute = require("./routes/comment.route");
 const app = express();
 app.use(express.json());
 
-// Ensure upload directory exists
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
 
-// Configure Multer storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads/');
@@ -35,7 +33,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Swagger definition
 const swaggerOptions = {
     definition: {
         openapi: "3.0.0",
@@ -121,4 +118,4 @@ app.use('/category', CategoryRoute);
 app.use('/order', OrderRoute);
 app.use('/comment', CommentRoute);
 
-app.listen(3000, () => console.log('Server is running on port 3000'));
+app.listen(4000, () => console.log('Server is running on port 3000'));
