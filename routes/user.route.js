@@ -1,5 +1,6 @@
 const router = require("express").Router()
-const {User, UserValidation, LoginValidation} = require("../models/user.module")
+const {UserValidation, LoginValidation} = require("../models/user.module")
+const {User} = require("../models/index.module")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const {totp} = require("otplib")
