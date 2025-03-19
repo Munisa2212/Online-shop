@@ -4,7 +4,7 @@ const route = express.Router()
 const {User} = require("../models/index.module")
 const {Op} = require("sequelize")
  
-route.get('/', async (req, res) => {
+route.get('/', roleMiddleware(["admin"]), async (req, res) => {
   try {
     let {name} = req.query
     const where = {}
@@ -23,7 +23,7 @@ route.get('/', async (req, res) => {
   }
 })
 
-route.post('/', async (req, res) => {
+route.post('/', roleMiddleware(["admin"]), async (req, res) => {
   try {
     let one = await Region.findOne({
       where: {
@@ -43,7 +43,7 @@ route.post('/', async (req, res) => {
   }
 })
 
-route.get('/:id', async (req, res) => {
+route.get('/:id', roleMiddleware(["admin"]), async (req, res) => {
   try {
     let region = await Region.findByPk(req.params.id)
     if (!region) {
@@ -55,7 +55,7 @@ route.get('/:id', async (req, res) => {
   }
 })
 
-route.put('/:id', async (req, res) => {
+route.put('/:id', roleMiddleware(["super-admin"]), async (req, res) => {
   try {
     let region = await Region.findByPk(req.params.id)
     if (!region) {
@@ -68,7 +68,7 @@ route.put('/:id', async (req, res) => {
   }
 })
 
-route.delete('/:id', async (req, res) => {
+route.delete('/:id', roleMiddleware(["admin"]),  async (req, res) => {
   try {
     let region = await Region.findByPk(req.params.id)
     if (!region) {

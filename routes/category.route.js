@@ -4,7 +4,7 @@ const { Op } = require("sequelize");
 const {Product, Category } = require("../models/index.module");
 const { roleMiddleware } = require("../middleware/roleAuth");
 
-router.get("/", roleMiddleware(["admin", "super-admin"]),async (req, res) => {
+router.get("/", roleMiddleware(["admin", "user", "super-admin", "seller"]),async (req, res) => {
     try {
         let { name, limit = 10, page = 1, sortBy = "id", order = "ASC"} = req.query;
         const where = {};
@@ -24,7 +24,7 @@ router.get("/", roleMiddleware(["admin", "super-admin"]),async (req, res) => {
     }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
     try {
         let category = await Category.findByPk(req.params.id,{
             include: [{ model: Product }],

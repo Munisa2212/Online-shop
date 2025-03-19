@@ -6,6 +6,7 @@ const route = express.Router()
 const { Op } = require('sequelize')
 const { roleMiddleware } = require('../middleware/roleAuth')
 const { Comment } = require('../models/index.module')
+
 route.post('/', roleMiddleware(['admin', 'seller']), async (req, res) => {
   try {
     let { error } = ProductValadation.validate(req.body)
@@ -39,7 +40,7 @@ route.post('/', roleMiddleware(['admin', 'seller']), async (req, res) => {
   }
 })
 
-route.get('/', async (req, res) => {
+route.get('/', roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
   try {
     let {
       page = 1,
@@ -83,7 +84,7 @@ route.get('/', async (req, res) => {
   }
 })
 
-route.get('/:id', async (req, res) => {
+route.get('/:id', roleMiddleware(["admin", "seller"]), async (req, res) => {
   try {
     let product = await Product.findByPk(req.params.id, {
       include: [Comment],

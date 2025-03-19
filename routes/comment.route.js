@@ -5,7 +5,7 @@ const { Comment, User, Product } = require("../models/index.module")
 const app = require("express").Router()
 const {commentLogger} = require("../logger")
 
-app.post("/",roleMiddleware(["admin", "seller"]), async(req, res)=>{
+app.post("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async(req, res)=>{
     const {user_id, product_id, comment} = req.body
     try {
         let { error } = CommentValidation.validate(req.body);
@@ -20,7 +20,7 @@ app.post("/",roleMiddleware(["admin", "seller"]), async(req, res)=>{
     }
 })
 
-app.get("/", roleMiddleware(["admin", "seller"]), async (req, res) => {
+app.get("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
     try {
         let { user_id, comment_id, comment, page = 1, limit = 10 } = req.query;
         const one = {};
@@ -47,7 +47,7 @@ app.get("/", roleMiddleware(["admin", "seller"]), async (req, res) => {
     }
 });
 
-app.get("/:id", async(req, res)=>{
+app.get("/:id", roleMiddleware(["admin", "user", "super-admin", "seller"]),async(req, res)=>{
     const {id} = req.params
     try {
         const data = await Comment.findByPk(id)
