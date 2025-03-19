@@ -1,7 +1,7 @@
 const swaggerJsDoc = require("swagger-jsdoc");
 
 const swaggerOptions = {
-    definition: { // ✅ `swaggerDefinition` emas, `definition`
+    definition: { 
         openapi: "3.0.0",
         info: {
             title: "Online Shop",
@@ -20,7 +20,7 @@ const swaggerOptions = {
         },
         security: [{ BearerAuth: [] }],
     },
-    apis: ["../routes/*.js"], 
+    apis: ["./routes/*.js"], 
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);

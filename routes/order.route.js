@@ -16,7 +16,7 @@ const app = require("express").Router()
 
 /**
  * @swagger
- * /order-products:
+ * /order/order-products:
  *   post:
  *     summary: Create a new order
  *     tags: [Order]
@@ -51,7 +51,7 @@ const app = require("express").Router()
 
 /**
  * @swagger
- * /order-delete/{id}:
+ * /order/order-delete/{id}:
  *   delete:
  *     summary: Delete an order
  *     tags: [Order]
@@ -75,7 +75,7 @@ const app = require("express").Router()
 
 /**
  * @swagger
- * /order:
+ * /order/order:
  *   get:
  *     summary: Get all orders for a user
  *     tags: [Order]
@@ -90,7 +90,7 @@ const app = require("express").Router()
 
 /**
  * @swagger
- * /order/{id}:
+ * /order/order/{id}:
  *   put:
  *     summary: Update an order
  *     tags: [Order]
