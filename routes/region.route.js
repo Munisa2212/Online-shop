@@ -3,8 +3,9 @@ const express = require('express')
 const route = express.Router()
 const {User} = require("../models/index.module")
 const {Op} = require("sequelize")
- 
-route.get('/', roleMiddleware(["admin"]), async (req, res) => {
+const {regionLogger} = require("../logger")
+
+route.get('/', async (req, res) => {
   try {
     let {name} = req.query
     const where = {}
@@ -20,6 +21,7 @@ route.get('/', roleMiddleware(["admin"]), async (req, res) => {
     res.status(200).send(regions)
   } catch (error) {
     res.status(500).send(error.message)
+    regionLogger.log("error", "/get error")
   }
 })
 
@@ -38,8 +40,10 @@ route.post('/', roleMiddleware(["admin"]), async (req, res) => {
       return res.status(400).send({ message: 'Region creation failed' })
     }
     res.status(201).send(region)
+    regionLogger.log("info", "/post")
   } catch (error) {
     res.status(400).send(error.message)
+    regionLogger.log("error", "/post error")
   }
 })
 
@@ -50,8 +54,10 @@ route.get('/:id', roleMiddleware(["admin"]), async (req, res) => {
       return res.status(404).send({ message: 'Region not found' })
     }
     res.status(200).send(region)
+    regionLogger.log("info", `/get/:id region with ${region.id}`)
   } catch (error) {
     res.status(500).send(error.message)
+    regionLogger.log("error", `/get/:id region error`)
   }
 })
 
@@ -63,8 +69,10 @@ route.put('/:id', roleMiddleware(["super-admin"]), async (req, res) => {
     }
     await region.update(req.body)
     res.status(200).send(region)
+    regionLogger.log("info", `/put/:id region with ${region.id}`)
   } catch (error) {
     res.status(500).send(error.message)
+    regionLogger.log("error", `/put/:id region error`)
   }
 })
 
@@ -76,8 +84,10 @@ route.delete('/:id', roleMiddleware(["admin"]),  async (req, res) => {
     }
     await region.destroy()
     res.status(200).send({ message: 'Region deleted successfully' })
+    regionLogger.log("info", `/delete/:id region with ${region.id}`)
   } catch (error) {
     res.status(500).send(error.message)
+    regionLogger.log("error", `/delete/:id region error`)
   }
 })
 
