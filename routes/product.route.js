@@ -4,7 +4,7 @@ const express = require('express')
 const route = express.Router()
 const { Op } = require('sequelize')
 const { roleMiddleware } = require('../middleware/roleAuth')
-
+const {Comment} = require('../models/index.module')
 route.post('/', roleMiddleware(["admin", "seller"]), async (req, res) => {
   try {
     let { error } = ProductValadation.validate(req.body)
@@ -60,6 +60,9 @@ route.get('/', async (req, res) => {
       order: [[sort, order.toUpperCase()]],
       limit: parseInt(limit),
       offset: (parseInt(page) - 1) * parseInt(limit),
+      include: [Comment],
+      attributes: ['id', 'user_id',"comment"],
+      
     })
 
     res.status(200).send({
@@ -72,7 +75,10 @@ route.get('/', async (req, res) => {
 
 route.get('/:id', async (req, res) => {
   try {
-    let product = await Product.findByPk(req.params.id)
+    let product = await Product.findByPk(req.params.id,{
+      include: [Comment],
+      attributes: ['id',"user_id", "comment" ]
+  })
     if (!product) return res.status(404).send('Product not found')
     res.status(200).send(product)
   } catch (error) {
