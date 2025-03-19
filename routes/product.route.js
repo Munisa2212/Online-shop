@@ -5,7 +5,7 @@ const route = express.Router()
 const { Op } = require('sequelize')
 const { roleMiddleware } = require('../middleware/roleAuth')
 
-route.post('/', roleMiddleware(['admin', 'seller']), async (req, res) => {
+route.post('/', roleMiddleware(["admin", "seller"]), async (req, res) => {
   try {
     let { error } = ProductValadation.validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
@@ -83,7 +83,7 @@ route.get('/:id', async (req, res) => {
   }
 })
 
-route.put('/:id', roleMiddleware(['super-admin']), async (req, res) => {
+route.put('/:id', roleMiddleware(["super-admin"]), async (req, res) => {
   try {
     let { error } = ProductValadation.validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
@@ -98,7 +98,7 @@ route.put('/:id', roleMiddleware(['super-admin']), async (req, res) => {
   }
 })
 
-route.delete('/:id', roleMiddleware(['admin']), async (req, res) => {
+route.delete('/:id', roleMiddleware(["admin"]), async (req, res) => {
   try {
     let product = await Product.findByPk(req.params.id)
     if (!product) return res.status(404).send('Product not found')
