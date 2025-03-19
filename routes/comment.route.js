@@ -3,6 +3,7 @@ const { roleMiddleware } = require("../middleware/roleAuth");
 const { CommentValidation } = require("../models/comment.module");
 const { Comment, User, Product } = require("../models/index.module")
 const app = require("express").Router()
+const { roleMiddleware } = require("../middleware/roleAuth")
 
 app.post("/",roleMiddleware(["admin", "seller"]), async(req, res)=>{
     const {user_id, product_id, comment} = req.body
@@ -17,14 +18,6 @@ app.post("/",roleMiddleware(["admin", "seller"]), async(req, res)=>{
     }
 })
 
-// app.get("/", roleMiddleware(["admin", "seller"]), async(req, res)=>{
-//     try {
-//         const data = await Comment.findAll({include: [{ model: User}, { model: Product}]})
-//         res.send(data)
-//     } catch (error) {
-//         res.status(500).send(error)
-//     }
-// })
 
 app.get("/", roleMiddleware(["admin", "seller"]), async (req, res) => {
     try {

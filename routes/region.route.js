@@ -1,10 +1,19 @@
 const { Region } = require('../models/index.module')
 const express = require('express')
 const route = express.Router()
-
+const {User} = require("../models/index.module")
+const {Op} = require("sequelize")
+ 
 route.get('/', async (req, res) => {
   try {
-    let regions = await Region.findAll()
+    let {name} = req.query
+    const where = {}
+    if (name) where.name = { [Op.like]: `${name}%`}
+    
+    let regions = await Region.findAll({
+      where,
+      include: [{model: User}]
+    })
     if (regions.length === 0) {
       return res.status(404).send({ message: 'No regions found' })
     }
