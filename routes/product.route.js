@@ -1,7 +1,7 @@
 const { ProductValadation } = require('../models/product.module')
 const { Product } = require('../models/index.module')
 const express = require('express')
-const productLogger = require('../logger')
+const { productLogger } = require('../logger')
 const route = express.Router()
 const { Op } = require('sequelize')
 const { roleMiddleware } = require('../middleware/roleAuth')
