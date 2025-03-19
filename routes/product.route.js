@@ -3,21 +3,23 @@ const { Product } = require('../models/index.module')
 const express = require('express')
 const route = express.Router()
 const { Op } = require('sequelize')
-const {roleMiddleware} = require('../middleware/roleAuth')
+const { roleMiddleware } = require('../middleware/roleAuth')
 
 route.post('/', roleMiddleware(['admin', 'seller']), async (req, res) => {
   try {
     let { error } = ProductValidation.validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
+    let { name, description, count, price, image, author_id, category_id } =
+      req.body
 
     let newProduct = await Product.create({
-      name: req.body.name,
-      description: req.body.description,
-      count: req.body.count,
-      price: req.body.price,
-      image: req.body.image,
-      author_id: req.body.author_id,
-      category_id: req.body.category_id,
+      name: name,
+      description: description,
+      count: count,
+      price: price,
+      image: image,
+      author_id: author_id,
+      category_id: category_id,
     })
 
     res.status(201).send(newProduct)
