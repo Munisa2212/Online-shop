@@ -60,7 +60,7 @@ route.get('/', async (req, res) => {
       order: [[sort, order.toUpperCase()]],
       limit: parseInt(limit),
       offset: (parseInt(page) - 1) * parseInt(limit),
-      include: [Comment],
+      include: [{Comment}],
       attributes: ['id', 'user_id',"comment"],
       
     })
