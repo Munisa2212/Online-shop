@@ -3,6 +3,7 @@ const { roleMiddleware } = require("../middleware/roleAuth");
 const { CommentValidation } = require("../models/comment.module");
 const { Comment, User, Product } = require("../models/index.module")
 const app = require("express").Router()
+const {commentLogger} = require("../logger")
 
 app.post("/",roleMiddleware(["admin", "seller"]), async(req, res)=>{
     const {user_id, product_id, comment} = req.body
@@ -11,12 +12,13 @@ app.post("/",roleMiddleware(["admin", "seller"]), async(req, res)=>{
         if (error) return res.status(400).send({ error: error.details[0].message });
 
         const data = await Comment.create({user_id, product_id, comment})
+        commentLogger.log("info", "comment created successfully")
         res.send(data)
     } catch (error) {
         res.send(error)
+        commentLogger.log("error", "comment post error")
     }
 })
-
 
 app.get("/", roleMiddleware(["admin", "seller"]), async (req, res) => {
     try {
@@ -41,6 +43,7 @@ app.get("/", roleMiddleware(["admin", "seller"]), async (req, res) => {
     } catch (error) {
         categoryLogger.log("error", error);
         res.status(500).json({ error: error.message });
+        commentLogger.log("error", "comment get error")
     }
 });
 
@@ -51,6 +54,7 @@ app.get("/:id", async(req, res)=>{
         res.send(data)
     } catch (error) {
         res.status(500).send(error)
+        commentLogger.log("error", "comment get by id error")
     }
 })
 app.put("/:id", roleMiddleware(["super-admin"]), async(req, res)=>{
@@ -61,9 +65,11 @@ app.put("/:id", roleMiddleware(["super-admin"]), async(req, res)=>{
 
         const data = await Comment.findByPk(id)
         await data.update(req.body)
+        commentLogger.log("info", `comment with ${id} id updated successfully`)
         res.send(data)
     } catch (error) {
         res.status(500).send(error)
+        commentLogger.log("error", "comment update error")
     }
 })
 
@@ -72,9 +78,11 @@ app.delete("/:id", roleMiddleware(["admin", "seller"]), async(req, res)=>{
     try {
         const data = await Comment.findByPk(id)
         await data.destroy()
+        commentLogger.log("info", `comment with ${id} id deleted successfully`)
         res.send(data)
     } catch (error) {
         res.status(500).send(error)
+        commentLogger.log("error", "comment delete error")
     }
 })
 module.exports = app

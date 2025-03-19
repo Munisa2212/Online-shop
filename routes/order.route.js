@@ -1,7 +1,7 @@
 const { roleMiddleware } = require("../middleware/roleAuth")
 const { Order, User } = require("../models/index.module")
 const { Order_item, Order_item_Validation } = require("../models/order_item.module")
-
+const {orderLogger} = require("../logger")
 const app = require("express").Router()
 
 app.post("/order-products", roleMiddleware(["admin", "seller"]), async(req, res)=>{
@@ -18,9 +18,11 @@ app.post("/order-products", roleMiddleware(["admin", "seller"]), async(req, res)
         }
 
         const data = await Order_item.findAll();
+        orderLogger.log("info", "order created successfully")
         res.send(data);
     } catch (error) {
         res.status(500).send(error)
+        orderLogger.log("error", "order post error")
     }
 })
 
@@ -32,9 +34,11 @@ app.delete("/order-delete/:id", roleMiddleware(["admin", "seller"]), async(req, 
             return res.status(404).send({ message: "Order not found" });
         }
         await data.destroy()
+        orderLogger.log("info", `order with ${id} deleted successfully`)
         res.send(data)
     } catch (error) {
         res.status(500).send(error)
+        orderLogger.log("error", "order delete error")
     }
 })
 
@@ -48,6 +52,7 @@ app.get("/",roleMiddleware(["admin"]), async(req, res)=>{
         res.send(data)
     } catch (error) {
         res.status(500).send(error)
+        orderLogger.log("error", "order get error")
     }
 })
 
@@ -56,9 +61,11 @@ app.put("/:id", roleMiddleware(["super-admin"]), async(req, res)=>{
     try {
         const data = await Order.findByPk(id)
         await data.update(req.body)
+        orderLogger.log("info", `order with ${id} updated successfully`)
         res.send(data)
     } catch (error) {
         res.status(500).send(error)
+        orderLogger.log("error", "order update error")
     }
 })
 module.exports = app

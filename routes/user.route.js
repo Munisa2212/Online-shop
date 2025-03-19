@@ -8,7 +8,7 @@ const { sendEmail } = require("../config/transporter")
 const {roleMiddleware} = require("../middleware/roleAuth")
 const {Region} = require("../models/index.module")
 const { Op } = require("sequelize")
-
+const {userLogger} = require("../logger")
 totp.options = {step: 300, digits: 5}
 
 router.post("/register", async(req, res)=>{
@@ -35,10 +35,12 @@ router.post("/register", async(req, res)=>{
         console.log(otp);
         
         sendEmail(email, otp)
-        // await sendSMS(phone, otp)
+    // await sendSMS(phone, otp)
         res.send(`/verify email\nToken sent to ${email}`)
+        userLogger.log("info", `/register with ${newUser.id} id`)
     } catch (error) {
         res.status(404).send(error)
+        userLogger.log("error", "/register error")
     }
 })
 
@@ -56,10 +58,12 @@ router.post("/verify", async (req, res) => {
         return;
       }
       await user.update({ status: "ACTIVE" });
-      res.send({message: "Email muvoffaqiyatli tasdiqlandi! Endi /login qilish mumkin!"});
+      res.send({message: "Email muvoffaqiyatli tasdiqlandi! Endi/login qilish mumkin!"});
+      userLogger.log("info", `/verify with ${user.email}`)
     } catch (error) {
       console.log(error);
       res.send(error);
+      userLogger.log("error", "/verify error")
     }
 });
 
@@ -83,8 +87,10 @@ router.post("/login", async(req, res)=>{
         }
         let token = jwt.sign({id: user.id, role: user.role}, "sekret")
         res.send({Your_Token: token})
+        userLogger.log("info", `/login with ${user.id} id`)
     }catch(err){
         res.status(400).send(err)
+        userLogger.log("error", "/login error")
     }
 })
 
@@ -100,8 +106,10 @@ router.post("/resend-otp", async (req, res) => {
         console.log("OTP: ", token);
         sendEmail(email, token);
       res.send({ message: `Token ${email} emailga yuborildi` });
+      userLogger.log("info", `/resend-otp to ${user.email}`)
     } catch (error) {
       console.log(error);
+      userLogger.log("eror", "/resend-otp error")
     }
 });
 
@@ -123,6 +131,7 @@ router.get("/", roleMiddleware(["admin"]),async (req, res) => {
         res.send(users);
     } catch (error) {
         res.status(500).send(error);
+        userLogger.log("error", "/get users error")
     }
 });
 
@@ -133,8 +142,10 @@ router.get("/:id", roleMiddleware(["admin"]),async (req, res) => {
             return res.status(404).send({ message: "User not found" });
         }
         res.send(user);
+        userLogger.log("info", `/get/:id user with ${user.id} id`)
     } catch (error) {
         res.status(500).send(error);
+        userLogger.log("error", "/get/:id user error")
     }
 });
 
@@ -149,11 +160,12 @@ router.put("/:id", roleMiddleware(["admin"]),async (req, res) => {
         if (!user) {
             return res.status(404).send({ message: "User not found" });
         }
-
+        userLogger.log("info", `/put/:id user with ${user.id} id`)
         await user.update(req.body);
         res.send({ message: "User updated successfully", user });
     } catch (error) {
         res.status(500).send(error);
+        userLogger.log("error", "/put/:id user error")
     }
 });
 
@@ -166,8 +178,10 @@ router.delete("/:id", roleMiddleware(["admin"]),async (req, res) => {
 
         await user.destroy();
         res.send({ message: "User deleted successfully" });
+        userLogger.log("info", `/delete/:id user with ${user.id}`)
     } catch (error) {
         res.status(500).send(error);
+        userLogger.log("error", "/delete users error")
     }
 });
 
