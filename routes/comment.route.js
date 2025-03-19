@@ -1,6 +1,7 @@
 const { CommentValidation } = require("../models/comment.module");
 const { Comment } = require("../models/index.module")
 const app = require("express").Router()
+const { roleMiddleware } = require("../middleware/roleAuth")
 
 app.post("/",roleMiddleware(["admin", "seller"]), async(req, res)=>{
     const {user_id, product_id, comment} = req.body
