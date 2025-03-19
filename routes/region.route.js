@@ -84,7 +84,7 @@ route.get("/", roleMiddleware(["admin"]), async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-route.post("/", roleMiddleware(["admin"]), async (req, res) => {
+route.post("/",  async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) {

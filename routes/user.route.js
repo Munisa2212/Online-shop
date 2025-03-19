@@ -204,6 +204,9 @@ router.post("/resend-otp", async (req, res) => {
  *               password:
  *                 type: string
  *                 example: "password123"
+ *               username:
+ *                 type: string
+ *                 example: "John Doe"
  *     responses:
  *       200:
  *         description: Login successful.
