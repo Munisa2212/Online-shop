@@ -1,4 +1,4 @@
-const { ProductValidation } = require('../models/product.module')
+const { ProductValadation } = require('../models/product.module')
 const { Product } = require('../models/index.module')
 const express = require('express')
 const route = express.Router()
@@ -7,7 +7,7 @@ const { roleMiddleware } = require('../middleware/roleAuth')
 
 route.post('/', roleMiddleware(['admin', 'seller']), async (req, res) => {
   try {
-    let { error } = ProductValidation.validate(req.body)
+    let { error } = ProductValadation.validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
     let { name, description, count, price, image, author_id, category_id } =
       req.body
@@ -85,7 +85,7 @@ route.get('/:id', async (req, res) => {
 
 route.put('/:id', roleMiddleware(['super-admin']), async (req, res) => {
   try {
-    let { error } = ProductValidation.validate(req.body)
+    let { error } = ProductValadation.validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
 
     let product = await Product.findByPk(req.params.id)
