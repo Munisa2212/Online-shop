@@ -85,6 +85,7 @@ router.post("/register", async (req, res) => {
             password: hash
         });
         let otp = totp.generate(email + "email");
+        console.log(otp);
         sendEmail(email, otp);
         res.send(`/verify email\nToken sent to ${email}`);
         userLogger.log("info", `/register with ${newUser.id} id`);
