@@ -34,28 +34,20 @@ totp.options = { step: 300, digits: 5 };
  *             properties:
  *               username:
  *                 type: string
- *                  example: Munisa
  *               password:
  *                 type: string
- *                  example: hello22
  *               email:
  *                 type: string
- *                  example: munisaforuse22@gmail.com
  *               phone:
  *                 type: string
- *                  example: +998882452212
  *               role:  
  *                 type: string
- *                  example: admin
  *               image: 
  *                 type: string
- *                  example: photo
  *               region_id:
  *                 type: number
- *                  example: 1
  *               year:
  *                 type: number
- *                  example: 2005
  *     responses:
  *       200:
  *         description: Registration successful, OTP sent.
@@ -109,10 +101,8 @@ router.post("/register", async (req, res) => {
  *             properties:
  *               email:
  *                 type: string
- *                  example: munisaforuse22@gmail.com
  *               otp:
  *                 type: string
- *                  example: 11111
  *     responses:
  *       200:
  *         description: Email successfully verified.
@@ -139,49 +129,6 @@ router.post("/verify", async (req, res) => {
 
 /**
  * @swagger
- * /user/resend-otp:
- *   post:
- *     summary: Resend OTP to user email
- *     description: Sends a new OTP to the user's registered email.
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: munisaforuse22@gmail.com
- *     responses:
- *       200:
- *         description: OTP sent successfully.
- *       404:
- *         description: User not found.
- *       500:
- *         description: Internal server error.
- */
-router.post("/resend-otp", async (req, res) => {
-    let { email } = req.body;
-    try {
-        let user = await User.findOne({ where: { email } });
-        if (!user) {
-            return res.status(404).send({ message: "User not found" });
-        }
-        console.log(email);
-        const token = totp.generate(email + "email");
-        console.log("OTP: ", token);
-        sendEmail(email, token);
-        res.send({ message: `Token sent to ${email}` });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({ message: "Internal server error" });
-    }
-});
-
-/**
- * @swagger
  * /user/login:
  *   post:
  *     summary: Login user
@@ -196,10 +143,8 @@ router.post("/resend-otp", async (req, res) => {
  *             properties:
  *               email:
  *                 type: string
- *                  example: munisaforuse22@gmail.com
  *               password:
  *                 type: string
- *                  example: hello22
  *     responses:
  *       200:
  *         description: Login successful.
