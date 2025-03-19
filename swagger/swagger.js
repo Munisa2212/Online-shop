@@ -1,13 +1,12 @@
 const swaggerJsDoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
 
 const swaggerOptions = {
-    swaggerDefinition: {
+    definition: { // ✅ `swaggerDefinition` emas, `definition`
         openapi: "3.0.0",
         info: {
             title: "Online Shop",
             version: "1.0.0",
-            description: "Online shop where uou can buy everything except humans",
+            description: "Online shop where you can buy everything except humans",
         },
         servers: [{ url: "http://localhost:3000" }],
         components: {
@@ -21,8 +20,9 @@ const swaggerOptions = {
         },
         security: [{ BearerAuth: [] }],
     },
-    apis: ["../routes/*.js"],
+    apis: ["../routes/*.js"], 
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+module.exports = swaggerDocs;
