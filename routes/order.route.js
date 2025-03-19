@@ -43,7 +43,7 @@ app.get("/",roleMiddleware(["admin"]), async(req, res)=>{
     try {
         const data = await Order.findAll({
             where: { user_id },
-            include: [{ model: Order_item }],
+            include: [{ model: Order_item , attributes: ["user_id"]}],
         });
         res.send(data)
     } catch (error) {

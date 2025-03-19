@@ -34,7 +34,7 @@ app.get("/", roleMiddleware(["admin", "seller"]), async (req, res) => {
             where: one,
             limit: limit,
             offset: offset,
-            include: [{ model: User}, { model: Product}]
+            include: [{ model: User, attributes: ["username", "email"]}, { model: Product, attributes: ["name", "description", "price"]}]
         });
 
         res.send(rows);
