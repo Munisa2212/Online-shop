@@ -3,7 +3,7 @@ const express = require('express')
 const route = express.Router()
 const {User} = require("../models/index.module")
 const {Op} = require("sequelize")
-const {regiregionLoggeron, regionLogger} = require("../logger")
+const {regionLogger} = require("../logger")
 
 route.get('/', async (req, res) => {
   try {
