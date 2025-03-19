@@ -1,6 +1,7 @@
 const router = require("express").Router();
-const { Category, CategoryValidation } = require("../models/category.module");
+const { CategoryValidation } = require("../models/category.module");
 const { Op } = require("sequelize");
+const {Product, Category } = require("../models/index.module");
 const { roleMiddleware } = require("../middleware/roleAuth");
 
 router.get("/", roleMiddleware(["admin", "super-admin"]),async (req, res) => {
@@ -14,20 +15,25 @@ router.get("/", roleMiddleware(["admin", "super-admin"]),async (req, res) => {
             limit: parseInt(limit),
             offset: (parseInt(page) - 1) * parseInt(limit),
             order: [[sortBy, order.toUpperCase()]],
+            include: [{ model: Product }],
+            attributes: ["id", "name"],
         });
         res.send(categories);
     } catch (error) {
-        res.status(400).send(error.message)
+        res.status(500).send(error.message)
     }
 });
 
 router.get("/:id", async (req, res) => {
     try {
-        let category = await Category.findByPk(req.params.id);
+        let category = await Category.findByPk(req.params.id,{
+            include: [{ model: Product }],
+            attributes: ["id", "name"]
+    });
         if (!category) return res.status(404).send({ error: "Category not found" });
         res.send(category);
     } catch (error) {
-        res.status(400).send(error.message)
+        res.status(500).send(error.message)
     }
 });
 
@@ -39,7 +45,7 @@ router.post("/", roleMiddleware(["admin"]), async (req, res) => {
         let newCategory = await Category.create(req.body);
         res.status(201).send(newCategory);
     } catch (error) {
-        res.status(400).send(error.message)
+        res.status(500).send(error.message)
     }
 });
 
@@ -54,7 +60,7 @@ router.put("/:id", roleMiddleware(["admin", "super-admin"]), async (req, res) =>
         await category.update(req.body);
         res.send(category);
     } catch (error) {
-        res.status(400).send(error.message)
+        res.status(500).send(error.message)
     }
 });
 
@@ -66,7 +72,7 @@ router.delete("/:id", roleMiddleware(["admin"]), async (req, res) => {
         await category.destroy();
         res.send({ message: "Category deleted successfully" });
     } catch (error) {
-        res.status(400).send(error.message)
+        res.status(500).send(error.message)
     }
 });
 
