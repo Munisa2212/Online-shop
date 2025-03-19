@@ -1,14 +1,23 @@
 const { ProductValadation } = require('../models/product.module')
 const { Product } = require('../models/index.module')
 const express = require('express')
+const { productLogger } = require('../logger')
 const route = express.Router()
 const { Op } = require('sequelize')
 const { roleMiddleware } = require('../middleware/roleAuth')
-const {Comment} = require('../models/index.module')
-route.post('/', roleMiddleware(["admin", "seller"]), async (req, res) => {
+const { Comment } = require('../models/index.module')
+route.post('/', roleMiddleware(['admin', 'seller']), async (req, res) => {
   try {
     let { error } = ProductValadation.validate(req.body)
-    if (error) return res.status(400).send(error.details[0].message)
+    if (error) {
+      res.status(400).send(error.details[0].message)
+      productLogger.log(
+        'info',
+        'Product create error',
+        error.details[0].message,
+      )
+      return
+    }
     let { name, description, count, price, image, author_id, category_id } =
       req.body
 
@@ -23,8 +32,10 @@ route.post('/', roleMiddleware(["admin", "seller"]), async (req, res) => {
     })
 
     res.status(201).send(newProduct)
+    productLogger.log('info', 'Product created successfully')
   } catch (error) {
     res.status(500).send(error.message)
+    productLogger.log('error', 'Product da error!', error.message)
   }
 })
 
@@ -60,8 +71,7 @@ route.get('/', async (req, res) => {
       order: [[sort, order.toUpperCase()]],
       limit: parseInt(limit),
       offset: (parseInt(page) - 1) * parseInt(limit),
-      include: [{ model: Comment , attributes: ["user_id", "comment"]}],
-      
+      include: [{ model: Comment, attributes: ['user_id', 'comment'] }],
     })
 
     res.status(200).send({
@@ -69,46 +79,68 @@ route.get('/', async (req, res) => {
     })
   } catch (error) {
     res.status(500).send(error.message)
+    productLogger.log('info', 'Server error', error.message)
   }
 })
 
 route.get('/:id', async (req, res) => {
   try {
-    let product = await Product.findByPk(req.params.id,{
+    let product = await Product.findByPk(req.params.id, {
       include: [Comment],
-      attributes: ['id',"user_id", "comment" ]
-  })
+      attributes: ['id', 'user_id', 'comment'],
+    })
     if (!product) return res.status(404).send('Product not found')
-    res.status(200).send(product)
-  } catch (error) {
-    return res.status(500).send(error.message)
-  }
-})
-
-route.put('/:id', roleMiddleware(["super-admin"]), async (req, res) => {
-  try {
-    let { error } = ProductValadation.validate(req.body)
-    if (error) return res.status(400).send(error.details[0].message)
-
-    let product = await Product.findByPk(req.params.id)
-    if (!product) return res.status(404).send('Product not found')
-
-    await product.update(req.body)
     res.status(200).send(product)
   } catch (error) {
     res.status(500).send(error.message)
+    productLogger.log('info', 'server error', error.message)
   }
 })
 
-route.delete('/:id', roleMiddleware(["admin"]), async (req, res) => {
+route.put('/:id', roleMiddleware(['super-admin']), async (req, res) => {
+  try {
+    let { error } = ProductValadation.validate(req.body)
+    if (error) {
+      res.status(400).send(error.details[0].message)
+      productLogger.log(
+        'info',
+        'Product update error',
+        error.details[0].message,
+      )
+      return
+    }
+
+    let product = await Product.findByPk(req.params.id)
+    if (!product) {
+      res.status(404).send('Product not found')
+      productLogger.log('info', 'Product not found')
+      return
+    }
+
+    await product.update(req.body)
+    productLogger.log('info', 'Product updated successfully')
+    res.status(200).send(product)
+  } catch (error) {
+    res.status(500).send(error.message)
+    productLogger.log('info', 'Product update error', error.message)
+  }
+})
+
+route.delete('/:id', roleMiddleware(['admin']), async (req, res) => {
   try {
     let product = await Product.findByPk(req.params.id)
-    if (!product) return res.status(404).send('Product not found')
+    if (!product) {
+      res.status(404).send('Product not found')
+      productLogger.log('info', 'Product not found')
+      return
+    }
 
     await product.destroy()
     res.status(200).send('Product deleted successfully')
+    Product.log('info', 'Product deleted successfully')
   } catch (error) {
     res.status(500).send(error.message)
+    Product.log('error', 'Product delete error', error.message)
   }
 })
 
