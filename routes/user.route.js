@@ -1,188 +1,234 @@
-const router = require("express").Router()
-const {User, UserValidation, LoginValidation} = require("../models/user.module")
-const bcrypt = require("bcrypt")
-const jwt = require("jsonwebtoken")
-const {totp} = require("otplib")
-const { sendEmail } = require("../config/transporter")
-// const sendSMS = require("../config/eskiz")
-const {roleMiddleware} = require("../middleware/roleAuth")
-const {Region} = require("../models/index.module")
-const { Op } = require("sequelize")
-const {userLogger} = require("../logger")
-totp.options = {step: 300, digits: 5}
+const router = require("express").Router();
+const { User, UserValidation, LoginValidation } = require("../models/user.module");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { totp } = require("otplib");
+const { sendEmail } = require("../config/transporter");
+const { roleMiddleware } = require("../middleware/roleAuth");
+const { Region } = require("../models/index.module");
+const { Op } = require("sequelize");
+const { userLogger } = require("../logger");
 
-router.post("/register", async(req, res)=>{
+totp.options = { step: 300, digits: 5 };
+
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management
+ */
+
+/**
+ * @swagger
+ * /user/register:
+ *   post:
+ *     summary: Register a new user
+ *     description: Registers a new user and sends an OTP for verification.
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Registration successful, OTP sent.
+ *       400:
+ *         description: Validation error or user already exists.
+ *       404:
+ *         description: Not found error.
+ */
+router.post("/register", async (req, res) => {
     try {
-        let {error} = UserValidation.validate(req.body)
-        if(error) {
-            return res.status(400).send(error.details[0].message)
+        let { error } = UserValidation.validate(req.body);
+        if (error) {
+            return res.status(400).send(error.details[0].message);
         }
-        const {username, password, email, phone, ...rest} = req.body
-        let user = await User.findOne({where: {email: email}})
-        if(user){
-            console.log(user);
-            return res.status(400).send({message: "User already exists, email exists"})
+        const { username, password, email, phone, ...rest } = req.body;
+        let user = await User.findOne({ where: { email: email } });
+        if (user) {
+            return res.status(400).send({ message: "User already exists, email exists" });
         }
-        let hash = bcrypt.hashSync(password, 10)
+        let hash = bcrypt.hashSync(password, 10);
         let newUser = await User.create({
             ...rest,
             username: username,
             phone: phone,
             email: email,
             password: hash
-        })
-        let otp = totp.generate(email + "email")
-        console.log(otp);
-        
-        sendEmail(email, otp)
-    // await sendSMS(phone, otp)
-        res.send(`/verify email\nToken sent to ${email}`)
-        userLogger.log("info", `/register with ${newUser.id} id`)
+        });
+        let otp = totp.generate(email + "email");
+        sendEmail(email, otp);
+        res.send(`/verify email\nToken sent to ${email}`);
+        userLogger.log("info", `/register with ${newUser.id} id`);
     } catch (error) {
-        res.status(404).send(error)
-        userLogger.log("error", "/register error")
+        res.status(404).send(error);
+        userLogger.log("error", "/register error");
     }
-})
+});
 
+/**
+ * @swagger
+ * /user/verify:
+ *   post:
+ *     summary: Verify user email
+ *     description: Verifies user email using OTP.
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               otp:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Email successfully verified.
+ *       404:
+ *         description: User not found or invalid OTP.
+ */
 router.post("/verify", async (req, res) => {
     let { email, otp } = req.body;
     try {
-      let user = await User.findOne({ where: { email: email } });
-      if (!user) {
-        res.status(404).send({ message: "User not found" });
-        return;
-      }
-      let match = totp.verify({ token: otp, secret: email + "email" });
-      if (!match) {
-        res.status(404).send({ message: "Otp is not valid" });
-        return;
-      }
-      await user.update({ status: "ACTIVE" });
-      res.send({message: "Email muvoffaqiyatli tasdiqlandi! Endi/login qilish mumkin!"});
-      userLogger.log("info", `/verify with ${user.email}`)
+        let user = await User.findOne({ where: { email: email } });
+        if (!user) return res.status(404).send({ message: "User not found" });
+
+        let match = totp.verify({ token: otp, secret: email + "email" });
+        if (!match) return res.status(404).send({ message: "Otp is not valid" });
+
+        await user.update({ status: "ACTIVE" });
+        res.send({ message: "Email successfully verified! You can now log in." });
+        userLogger.log("info", `/verify with ${user.email}`);
     } catch (error) {
-      console.log(error);
-      res.send(error);
-      userLogger.log("error", "/verify error")
+        res.send(error);
+        userLogger.log("error", "/verify error");
     }
 });
 
-router.post("/login", async(req, res)=>{
-    try{
-        let {error} = LoginValidation.validate(req.body)
-        if(error) {
-            return res.status(400).send(error.details[0].message)
-        }
-        let {password, email, username} = req.body
-        let user = await User.findOne({where: {email: email, username: username}})
-        if(!user){
-            return res.status(404).send({message: "User not found"})
-        }
-        let match = bcrypt.compareSync(password, user.password)
-        if(!match){
-            return res.status(400).send({message: "Wrong password"})
-        }
-        if(user.status != "ACTIVE"){
-            return res.status(400).send({message: "Birinchi email ni verfy qiling!"})
-        }
-        let token = jwt.sign({id: user.id, role: user.role}, "sekret")
-        res.send({Your_Token: token})
-        userLogger.log("info", `/login with ${user.id} id`)
-    }catch(err){
-        res.status(400).send(err)
-        userLogger.log("error", "/login error")
-    }
-})
-
-router.post("/resend-otp", async (req, res) => {
-    let { email } = req.body;
+/**
+ * @swagger
+ * /user/login:
+ *   post:
+ *     summary: Login user
+ *     description: Logs in a user and returns a JWT token.
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful.
+ *       400:
+ *         description: Wrong password or email not verified.
+ *       404:
+ *         description: User not found.
+ */
+router.post("/login", async (req, res) => {
     try {
-        let user = await User.findOne({where: {email}})
-        if(!user){
-            return res.status(404).send("User not foun")
-        }
-        console.log(email);
-        const token = totp.generate(email + "email");
-        console.log("OTP: ", token);
-        sendEmail(email, token);
-      res.send({ message: `Token ${email} emailga yuborildi` });
-      userLogger.log("info", `/resend-otp to ${user.email}`)
-    } catch (error) {
-      console.log(error);
-      userLogger.log("eror", "/resend-otp error")
+        let { error } = LoginValidation.validate(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+
+        let { password, email } = req.body;
+        let user = await User.findOne({ where: { email: email } });
+        if (!user) return res.status(404).send({ message: "User not found" });
+
+        let match = bcrypt.compareSync(password, user.password);
+        if (!match) return res.status(400).send({ message: "Wrong password" });
+
+        if (user.status != "ACTIVE") return res.status(400).send({ message: "Verify your email first!" });
+
+        let token = jwt.sign({ id: user.id, role: user.role }, "sekret");
+        res.send({ Your_Token: token });
+        userLogger.log("info", `/login with ${user.id} id`);
+    } catch (err) {
+        res.status(400).send(err);
+        userLogger.log("error", "/login error");
     }
 });
 
-router.get("/", roleMiddleware(["admin"]),async (req, res) => {
+/**
+ * @swagger
+ * /user:
+ *   get:
+ *     summary: Get all users
+ *     description: Retrieves a list of all users. Admin access only.
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get("/", roleMiddleware(["admin"]), async (req, res) => {
     try {
-        let {username, email, region_id, role, status} = req.query
-        const where = {}
-
-        if (username) where.username = { [Op.like]: `${username}%`}
-        if (email) where.email = { [Op.like]: `${email}%`}
-        if(region_id) where.region_id = region_id
-        if(role) where.role = role
-        if(status) where.status = status
-
         let users = await User.findAll({
-            where,
-            include: [{model: Region, attributes: ["name"]}]
+            include: [{ model: Region, attributes: ["name"] }]
         });
         res.send(users);
     } catch (error) {
         res.status(500).send(error);
-        userLogger.log("error", "/get users error")
+        userLogger.log("error", "/get users error");
     }
 });
 
-router.get("/:id", roleMiddleware(["admin"]),async (req, res) => {
+/**
+ * @swagger
+ * /user/{id}:
+ *   delete:
+ *     summary: Delete a user
+ *     description: Deletes a user. Admin access only.
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: User deleted successfully.
+ *       404:
+ *         description: User not found.
+ */
+router.delete("/:id", roleMiddleware(["admin"]), async (req, res) => {
     try {
         let user = await User.findByPk(req.params.id);
-        if (!user) {
-            return res.status(404).send({ message: "User not found" });
-        }
-        res.send(user);
-        userLogger.log("info", `/get/:id user with ${user.id} id`)
-    } catch (error) {
-        res.status(500).send(error);
-        userLogger.log("error", "/get/:id user error")
-    }
-});
-
-router.put("/:id", roleMiddleware(["admin"]),async (req, res) => {
-    try {
-        let { error } = UserValidation.validate(req.body);
-        if (error) {
-            return res.status(400).send(error.details[0].message);
-        }
-
-        let user = await User.findByPk(req.params.id);
-        if (!user) {
-            return res.status(404).send({ message: "User not found" });
-        }
-        userLogger.log("info", `/put/:id user with ${user.id} id`)
-        await user.update(req.body);
-        res.send({ message: "User updated successfully", user });
-    } catch (error) {
-        res.status(500).send(error);
-        userLogger.log("error", "/put/:id user error")
-    }
-});
-
-router.delete("/:id", roleMiddleware(["admin"]),async (req, res) => {
-    try {
-        let user = await User.findByPk(req.params.id);
-        if (!user) {
-            return res.status(404).send({ message: "User not found" });
-        }
+        if (!user) return res.status(404).send({ message: "User not found" });
 
         await user.destroy();
         res.send({ message: "User deleted successfully" });
-        userLogger.log("info", `/delete/:id user with ${user.id}`)
+        userLogger.log("info", `/delete/:id user with ${user.id}`);
     } catch (error) {
         res.status(500).send(error);
-        userLogger.log("error", "/delete users error")
+        userLogger.log("error", "/delete users error");
     }
 });
 
-module.exports = router
+module.exports = router;
+
