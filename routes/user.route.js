@@ -139,6 +139,49 @@ router.post("/verify", async (req, res) => {
 
 /**
  * @swagger
+ * /user/resend-otp:
+ *   post:
+ *     summary: Resend OTP to user email
+ *     description: Sends a new OTP to the user's registered email.
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: munisaforuse22@gmail.com
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully.
+ *       404:
+ *         description: User not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.post("/resend-otp", async (req, res) => {
+    let { email } = req.body;
+    try {
+        let user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).send({ message: "User not found" });
+        }
+        console.log(email);
+        const token = totp.generate(email + "email");
+        console.log("OTP: ", token);
+        sendEmail(email, token);
+        res.send({ message: `Token sent to ${email}` });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: "Internal server error" });
+    }
+});
+
+/**
+ * @swagger
  * /user/login:
  *   post:
  *     summary: Login user
