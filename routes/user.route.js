@@ -34,20 +34,28 @@ totp.options = { step: 300, digits: 5 };
  *             properties:
  *               username:
  *                 type: string
+ *                 example: "John Doe"
  *               password:
  *                 type: string
+ *                 example: "password123"
  *               email:
  *                 type: string
+ *                 example: "johndoe@example.com"
  *               phone:
  *                 type: string
+ *                 example: "+998882452212"
  *               role:  
  *                 type: string
+ *                 example: "admin"
  *               image: 
  *                 type: string
+ *                 example: "profile.jpg"
  *               region_id:
  *                 type: number
+ *                 example: 1
  *               year:
  *                 type: number
+ *                 example: 1990
  *     responses:
  *       200:
  *         description: Registration successful, OTP sent.
@@ -56,6 +64,7 @@ totp.options = { step: 300, digits: 5 };
  *       404:
  *         description: Not found error.
  */
+
 router.post("/register", async (req, res) => {
     try {
         let { error } = UserValidation.validate(req.body);
@@ -101,14 +110,17 @@ router.post("/register", async (req, res) => {
  *             properties:
  *               email:
  *                 type: string
+ *                 example: "johndoe@example.com"
  *               otp:
  *                 type: string
+ *                 example: "12345"
  *     responses:
  *       200:
  *         description: Email successfully verified.
  *       404:
  *         description: User not found or invalid OTP.
  */
+
 router.post("/verify", async (req, res) => {
     let { email, otp } = req.body;
     try {
@@ -143,7 +155,7 @@ router.post("/verify", async (req, res) => {
  *             properties:
  *               email:
  *                 type: string
- *                 example: munisaforuse22@gmail.com
+ *                 example: "munisaforuse22@gmail.com"
  *     responses:
  *       200:
  *         description: OTP sent successfully.
@@ -152,6 +164,7 @@ router.post("/verify", async (req, res) => {
  *       500:
  *         description: Internal server error.
  */
+
 router.post("/resend-otp", async (req, res) => {
     let { email } = req.body;
     try {
@@ -186,8 +199,10 @@ router.post("/resend-otp", async (req, res) => {
  *             properties:
  *               email:
  *                 type: string
+ *                 example: "johndoe@example.com"
  *               password:
  *                 type: string
+ *                 example: "password123"
  *     responses:
  *       200:
  *         description: Login successful.
@@ -196,6 +211,7 @@ router.post("/resend-otp", async (req, res) => {
  *       404:
  *         description: User not found.
  */
+
 router.post("/login", async (req, res) => {
     try {
         let { error } = LoginValidation.validate(req.body);
@@ -234,6 +250,7 @@ router.post("/login", async (req, res) => {
  *       500:
  *         description: Internal server error.
  */
+
 router.get("/", roleMiddleware(["admin"]), async (req, res) => {
     try {
         let users = await User.findAll({
@@ -261,12 +278,14 @@ router.get("/", roleMiddleware(["admin"]), async (req, res) => {
  *         required: true
  *         schema:
  *           type: integer
+ *           example: 123
  *     responses:
  *       200:
  *         description: User deleted successfully.
  *       404:
  *         description: User not found.
  */
+
 router.delete("/:id", roleMiddleware(["admin"]), async (req, res) => {
     try {
         let user = await User.findByPk(req.params.id);
