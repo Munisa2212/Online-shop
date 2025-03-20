@@ -127,7 +127,7 @@ app.delete("/order-delete/:id", roleMiddleware(["admin", "seller"]), async (req,
  *       500:
  *         description: Server error
  */
-app.get("/", roleMiddleware(["admin"]), async (req, res) => {
+app.get("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
     const user_id = req.user.id;
     try {
         const orders = await Order.findAll({

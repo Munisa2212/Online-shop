@@ -135,7 +135,7 @@ route.post("/", roleMiddleware(["admin", "seller"]), async (req, res) => {
  *         description: "Server error"
  */
 
-route.get("/", async (req, res) => {
+route.get("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
   try {
     let {
       page = 1,

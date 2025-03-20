@@ -36,7 +36,7 @@ const { roleMiddleware } = require("../middleware/roleAuth");
  *       500:
  *         description: Internal server error
  */
-route.get("/", roleMiddleware(["admin"]), async (req, res) => {
+route.get("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
   try {
     let { name } = req.query;
     const where = {};

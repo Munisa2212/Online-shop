@@ -58,7 +58,7 @@ const { categoryLogger } = require('../logger');
  *       500:
  *         description: Internal server error
  */
-router.get("/", roleMiddleware(["admin", "super-admin"]), async (req, res) => {
+router.get("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
   try {
     let { name, limit = 10, page = 1, sortBy = "id", order = "ASC" } = req.query;
     const where = {};
