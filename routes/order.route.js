@@ -91,7 +91,7 @@ const app = require("express").Router()
 /**
  * @swagger
  * order/{id}:
- *   put:
+ *   patch:
  *     summary: Update an order
  *     tags: [Order]
  *     security:
@@ -174,7 +174,7 @@ app.get("/",roleMiddleware(["admin"]), async(req, res)=>{
     }
 })
 
-app.put("/:id", roleMiddleware(["super-admin"]), async(req, res)=>{
+app.patch("/:id", roleMiddleware(["super-admin"]), async(req, res)=>{
     const {id} = req.params
     try {
         const data = await Order.findByPk(id)
