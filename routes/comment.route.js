@@ -170,7 +170,7 @@ app.get("/:id", roleMiddleware(["admin", "user", "super-admin", "seller"]), asyn
 /**
  * @swagger
  * /comment/{id}:
- *   put:
+ *   patch:
  *     summary: Update a comment
  *     description: Modify an existing comment (super-admin only).
  *     tags: [Comments]
@@ -201,12 +201,9 @@ app.get("/:id", roleMiddleware(["admin", "user", "super-admin", "seller"]), asyn
  *       500:
  *         description: Internal server error
  */
-app.put("/:id", roleMiddleware(["super-admin"]), async (req, res) => {
+app.patch("/:id", roleMiddleware(["super-admin"]), async (req, res) => {
     const { id } = req.params;
     try {
-        let { error } = CommentValidation.validate(req.body);
-        if (error) return res.status(400).send({ error: error.details[0].message });
-
         const data = await Comment.findByPk(id);
         await data.update(req.body);
         commentLogger.log("info", `comment with ${id} id updated successfully`);
