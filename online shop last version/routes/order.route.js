@@ -1,11 +1,9 @@
-const { roleMiddleware } = require("../middleware/roleAuth")
-const { Order, User } = require("../models/index.module")
-const { Order_item, Order_item_Validation } = require("../models/order_item.module")
-const {orderLogger} = require("../logger")
-const app = require("express").Router()
-
-
-
+const { roleMiddleware } = require("../middleware/roleAuth");
+const { Order, User } = require("../models/index.module");
+const { Order_item, Order_item_Validation } = require("../models/order_item.module");
+const { orderLogger } = require("../logger");
+const express = require("express");
+const app = express.Router();
 
 /**
  * @swagger
@@ -18,8 +16,10 @@ const app = require("express").Router()
  * @swagger
  * /order/order-products:
  *   post:
- *     summary: Create a new order
- *     tags: [Order]
+ *     summary: Create an order with multiple products
+ *     description: Allows admin and seller roles to create an order with multiple products.
+ *     tags:
+ *       - Order
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -29,25 +29,50 @@ const app = require("express").Router()
  *           schema:
  *             type: object
  *             required:
- *               - product_id
- *               - count
+ *               - products
  *             properties:
- *               product_id:
+ *               products:
  *                 type: array
  *                 items:
- *                   type: integer
- *                 example: [1, 2, 3]
- *               count:
- *                 type: integer
- *                 example: 2
+ *                   type: object
+ *                   required:
+ *                     - product_id
+ *                     - count
+ *                   properties:
+ *                     product_id:
+ *                       type: integer
+ *                       example: 1
+ *                     count:
+ *                       type: integer
+ *                       example: 3
  *     responses:
- *       201:
+ *       200:
  *         description: Order created successfully
  *       400:
  *         description: Validation error
  *       500:
  *         description: Server error
  */
+app.post("/order-products", roleMiddleware(["admin", "seller"]), async (req, res) => {
+    const user_id = req.user.id;
+    const { products } = req.body;
+    try {
+        let { error } = Order_item_Validation.validate(req.body);
+        if (error) return res.status(400).send({ error: error.details[0].message });
+
+        const order = await Order.create({ user_id });
+        
+        for (const element of products) {
+            await Order_item.create({ order_id: order.id, product_id: element.product_id, count: element.count });
+        }
+
+        orderLogger.log("info", "Order created successfully");
+        res.send({ message: "Order created successfully", order });
+    } catch (error) {
+        orderLogger.log("error", "Order post error", error);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
 
 /**
  * @swagger
@@ -72,6 +97,21 @@ const app = require("express").Router()
  *       500:
  *         description: Server error
  */
+app.delete("/order-delete/:id", roleMiddleware(["admin", "seller"]), async (req, res) => {
+    const { id } = req.params;
+    try {
+        const order = await Order.findByPk(id);
+        if (!order) {
+            return res.status(404).send({ message: "Order not found" });
+        }
+        await order.destroy();
+        orderLogger.log("info", `Order with ID ${id} deleted successfully`);
+        res.send({ message: "Order deleted successfully" });
+    } catch (error) {
+        orderLogger.log("error", "Order delete error", error);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
 
 /**
  * @swagger
@@ -87,10 +127,23 @@ const app = require("express").Router()
  *       500:
  *         description: Server error
  */
+app.get("/", roleMiddleware(["admin"]), async (req, res) => {
+    const user_id = req.user.id;
+    try {
+        const orders = await Order.findAll({
+            where: { user_id },
+            include: [{ model: Order_item, attributes: ["count"] }, { model: User, attributes: ["username"] }],
+        });
+        res.send(orders);
+    } catch (error) {
+        orderLogger.log("error", "Order get error", error);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
 
 /**
  * @swagger
- * order/{id}:
+ * /order/{id}:
  *   patch:
  *     summary: Update an order
  *     tags: [Order]
@@ -121,69 +174,20 @@ const app = require("express").Router()
  *       500:
  *         description: Server error
  */
-
-app.post("/order-products", roleMiddleware(["admin", "seller"]), async(req, res)=>{
-    const user_id = req.user.id
-    const {product_id, count} = req.body
+app.patch("/:id", roleMiddleware(["super-admin"]), async (req, res) => {
+    const { id } = req.params;
     try {
-        let { error } = Order_item_Validation.validate(req.body);
-        if (error) return res.status(400).send({ error: error.details[0].message });
-
-        const order = await Order.create({user_id})
-        
-        for (const element of product_id) {
-            await Order_item.create({ order_id: order.id, product_id: element, count });
-        }
-
-        const data = await Order_item.findAll();
-        orderLogger.log("info", "order created successfully")
-        res.send(data);
-    } catch (error) {
-        res.status(500).send(error)
-        orderLogger.log("error", "order post error")
-    }
-})
-
-app.delete("/order-delete/:id", roleMiddleware(["admin", "seller"]), async(req, res)=>{
-    const {id} = req.params
-    try {
-        const data = await Order.findByPk(id)
-        if (!data) {
+        const order = await Order.findByPk(id);
+        if (!order) {
             return res.status(404).send({ message: "Order not found" });
         }
-        await data.destroy()
-        orderLogger.log("info", `order with ${id} deleted successfully`)
-        res.send(data)
+        await order.update(req.body);
+        orderLogger.log("info", `Order with ID ${id} updated successfully`);
+        res.send({ message: "Order updated successfully", order });
     } catch (error) {
-        res.status(500).send(error)
-        orderLogger.log("error", "order delete error")
+        orderLogger.log("error", "Order update error", error);
+        res.status(500).send({ error: "Internal server error" });
     }
-})
+});
 
-app.get("/",roleMiddleware(["admin"]), async(req, res)=>{
-    const user_id = req.user.id
-    try {
-        const data = await Order.findAll({
-            where: { user_id },
-            include: [{ model: Order_item , attributes: ["count"]}, { model: User , attributes: ["username"]}],
-        });
-        res.send(data)
-    } catch (error) {
-        res.status(500).send(error)
-        orderLogger.log("error", "order get error")
-    }
-})
-
-app.patch("/:id", roleMiddleware(["super-admin"]), async(req, res)=>{
-    const {id} = req.params
-    try {
-        const data = await Order.findByPk(id)
-        await data.update(req.body)
-        orderLogger.log("info", `order with ${id} updated successfully`)
-        res.send(data)
-    } catch (error) {
-        res.status(500).send(error)
-        orderLogger.log("error", "order update error")
-    }
-})
-module.exports = app
+module.exports = app;
