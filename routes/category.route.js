@@ -158,7 +158,7 @@ router.post("/", roleMiddleware(["admin"]), async (req, res) => {
 /**
  * @swagger
  * /category/{id}:
- *   put:
+ *   patch:
  *     summary: Update category by ID
  *     description: Update an existing category (admin/super-admin only).
  *     tags: [Categories]
@@ -191,15 +191,8 @@ router.post("/", roleMiddleware(["admin"]), async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.put("/:id", roleMiddleware(["admin", "super-admin"]), async (req, res) => {
+router.patch("/:id", roleMiddleware(["admin", "super-admin"]), async (req, res) => {
   try {
-    let { error } = CategoryValidation.validate(req.body);
-    if (error) {
-      res.status(400).send({ error: error.details[0].message });
-      categoryLogger.log("info", "category put error", error.message);
-      return;
-    }
-
     let category = await Category.findByPk(req.params.id);
     if (!category) {
       res.status(404).send({ error: "Category not found" });
