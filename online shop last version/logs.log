@@ -26,3 +26,16 @@
 {"level":"info","message":"comment with 2 id deleted successfully","module":"auth"}
 {"level":"info","message":"order created successfully","module":"order"}
 {"level":"info","message":"order with 1 deleted successfully","module":"order"}
+{"level":"info","message":"/register with 2 id","module":"user"}
+{"level":"info","message":"/register with 1 id","module":"user"}
+{"level":"info","message":"/register with 2 id","module":"user"}
+{"level":"info","message":"/verify with ibodullayevamunisa570@example.com","module":"user"}
+{"level":"info","message":"/login with 2 id","module":"user"}
+{"level":"info","message":"category post created","module":"product"}
+{"level":"info","message":"/login with 2 id","module":"user"}
+{"level":"info","message":"/login with 2 id","module":"user"}
+{"level":"info","message":"/login with 2 id","module":"user"}
+{"errors":[{"instance":{"createdAt":"2025-03-20T12:34:31.700Z","id":null,"order_id":1,"product_id":1,"updatedAt":"2025-03-20T12:34:31.700Z"},"message":"Order_item.products cannot be null","origin":"CORE","path":"products","type":"notNull Violation","validatorArgs":[],"validatorKey":"is_null","validatorName":null,"value":null}],"level":"error","message":"Order post error notNull Violation: Order_item.products cannot be null","module":"order","name":"SequelizeValidationError","stack":"SequelizeValidationError: notNull Violation: Order_item.products cannot be null\n    at InstanceValidator._validate (/Users/munisa/Desktop/IT🫶🏻/project before exam/online shop last version/node_modules/sequelize/lib/instance-validator.js:50:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async InstanceValidator._validateAndRunHooks (/Users/munisa/Desktop/IT🫶🏻/project before exam/online shop last version/node_modules/sequelize/lib/instance-validator.js:60:7)\n    at async InstanceValidator.validate (/Users/munisa/Desktop/IT🫶🏻/project before exam/online shop last version/node_modules/sequelize/lib/instance-validator.js:54:12)\n    at async model.save (/Users/munisa/Desktop/IT🫶🏻/project before exam/online shop last version/node_modules/sequelize/lib/model.js:2426:7)\n    at async Order_item.create (/Users/munisa/Desktop/IT🫶🏻/project before exam/online shop last version/node_modules/sequelize/lib/model.js:1362:12)\n    at async /Users/munisa/Desktop/IT🫶🏻/project before exam/online shop last version/routes/order.route.js:66:13"}
+{"level":"info","message":"/login with 2 id","module":"user"}
+{"level":"info","message":"/login with 2 id","module":"user"}
+{"level":"info","message":"Order created successfully","module":"order"}

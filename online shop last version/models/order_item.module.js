@@ -26,9 +26,12 @@ const Order_item = db.define(
 )
 
 const Order_item_Validation = joi.object({
-    order_id: joi.number(),
-    product_id: joi.array().required(),
-    count: joi.number().required(),
-})
+    products: joi.array().items(
+        joi.object({
+            product_id: joi.number().required(),
+            count: joi.number().required()
+        })
+    ).required()
+});
 
 module.exports = {Order_item, Order_item_Validation}

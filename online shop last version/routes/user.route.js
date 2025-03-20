@@ -361,8 +361,6 @@ router.delete("/:id", roleMiddleware(["admin"]), async (req, res) => {
  *         description: Server xatosi
  */
 
-
-
 router.get(
     "/me",
     roleMiddleware(["user", "admin", "super-admin", "seller"]),
