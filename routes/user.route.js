@@ -306,16 +306,103 @@ router.delete("/:id", roleMiddleware(["admin"]), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /user/me:
+ *   get:
+ *     summary: Foydalanuvchining shaxsiy ma'lumotlari va buyurtmalari
+ *     tags:
+ *       - User
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Foydalanuvchi ma'lumotlari va buyurtmalari
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     orders:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           status:
+ *                             type: string
+ *                           order_items:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 id:
+ *                                   type: integer
+ *                                 count:
+ *                                   type: integer
+ *                                 product:
+ *                                   type: object
+ *                                   properties:
+ *                                     name:
+ *                                       type: string
+ *                                     price:
+ *                                       type: number
+ *       404:
+ *         description: Foydalanuvchi topilmadi
+ *       500:
+ *         description: Server xatosi
+ */
 
-router.get("/me",roleMiddleware(["user","admin","super-admin","seller"]),async(req,res)=>{
-    try{
-        let {id} = req.user.id
-        let user = await User.findByPk(id,{include:[{model: Order, attributes:["name"]}]})
 
-    }catch(err){
-        console.log(err)
+
+router.get(
+    "/me",
+    roleMiddleware(["user", "admin", "super-admin", "seller"]),
+    async (req, res) => {
+      try {
+        let { id } = req.user; 
+        let user = await User.findOne({
+          where: { id }, 
+          include: [
+            {
+              model: Order,
+              attributes: ["id", "status"],
+              include: [
+                {
+                  model: Order_item,
+                  attributes: ["id", "count"],
+                  include: [
+                    {
+                      model: Product, 
+                      attributes: ["name", "price"],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+  
+        if (!user) {
+          return res.status(404).json({ error: "User have not ordered get" });
+        }
+        res.json({ user });
+      } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Server error" });
+      }
     }
-})
+  );  
 
 module.exports = router;
 
