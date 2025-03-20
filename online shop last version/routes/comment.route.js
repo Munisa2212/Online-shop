@@ -204,9 +204,6 @@ app.get("/:id", roleMiddleware(["admin", "user", "super-admin", "seller"]), asyn
 app.patch("/:id", roleMiddleware(["super-admin"]), async (req, res) => {
     const { id } = req.params;
     try {
-        let { error } = CommentValidation.validate(req.body);
-        if (error) return res.status(400).send({ error: error.details[0].message });
-
         const data = await Comment.findByPk(id);
         await data.update(req.body);
         commentLogger.log("info", `comment with ${id} id updated successfully`);

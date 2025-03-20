@@ -241,9 +241,6 @@ route.get("/:id", async (req, res) => {
  */
 route.patch("/:id", roleMiddleware(["admin", "seller", "super-admin"]), async (req, res) => {
   try {
-    let { error } = ProductValadation.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
     let product = await Product.findByPk(req.params.id);
     if (!product) return res.status(404).send("Product not found");
     if(req.user.role == "seller" && product.author_id != req.user.id){
