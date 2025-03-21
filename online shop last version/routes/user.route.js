@@ -8,6 +8,9 @@ const { roleMiddleware } = require("../middleware/roleAuth");
 const { Region } = require("../models/index.module");
 const { Op } = require("sequelize");
 const { userLogger } = require("../logger");
+const {Order_item} = require("../models/index.module")
+const {Order} = require("../models/index.module")
+const {Product} = require("../models/index.module")
 const sendSMS = require("../config/eskiz")
 totp.options = { step: 300, digits: 5 };
 
@@ -87,7 +90,7 @@ router.post("/register", async (req, res) => {
         let otp = totp.generate(email + "email");
         console.log(otp);
         sendEmail(email, otp);
-        sendSMS(phone, otp)
+        // sendSMS(phone, otp)
         res.send({message: "User created successfully otp is sended to email and phone"});
         userLogger.log("info", `/register with ${newUser.id} id`);
     } catch (error) {

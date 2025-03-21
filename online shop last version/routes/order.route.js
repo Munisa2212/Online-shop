@@ -1,6 +1,6 @@
 const { roleMiddleware } = require("../middleware/roleAuth");
-const { Order, User } = require("../models/index.module");
-const { Order_item, Order_item_Validation } = require("../models/order_item.module");
+const { Order, User, Product,Order_item } = require("../models/index.module");
+const { Order_item_Validation } = require("../models/order.module");
 const { orderLogger } = require("../logger");
 const express = require("express");
 const app = express.Router();
@@ -130,11 +130,28 @@ app.delete("/order-delete/:id", roleMiddleware(["admin", "seller"]), async (req,
 app.get("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
     const user_id = req.user.id;
     try {
-        const orders = await Order.findAll({
-            where: { user_id },
-            include: [{ model: Order_item, attributes: ["count"] }, { model: User, attributes: ["username"] }],
-        });
-        res.send(orders);
+        // const orders = await Order.findAll({
+        //     where: { user_id },
+        //     include: [{ model: Order_item, attributes: ["count"], include: [{model: Product , attributes: ["name"]}] }, { model: User, attributes: ["username"] }],
+        // });
+
+        const myorders = await Order.findAll({
+            where: { user_id: user_id },
+            include: [
+              {
+                model: Order_item,
+                include: [
+                  {
+                    model: Product,
+                    attributes: ["id", "name", "price", "img"],
+                  },
+                ],
+              },
+            ],
+          });
+          console.log(myorders);
+          
+        res.send(myorders);
     } catch (error) {
         orderLogger.log("error", "Order get error", error);
         res.status(500).send({ error: "Internal server error" });

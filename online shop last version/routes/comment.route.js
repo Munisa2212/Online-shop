@@ -28,9 +28,6 @@ const { commentLogger } = require("../logger");
  *           schema:
  *             type: object
  *             properties:
- *               user_id:
- *                 type: integer
- *                 example: 1
  *               product_id:
  *                 type: integer
  *                 example: 2
