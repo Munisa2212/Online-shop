@@ -166,7 +166,7 @@ router.post("/verify", async (req, res) => {
  *         description: OTP sent successfully.
  *       404:
  *         description: User not found.
- *       500:
+ *       400:
  *         description: Internal server error.
  */
 
@@ -184,7 +184,7 @@ router.post("/resend-otp", async (req, res) => {
         res.send({ message: `Token sent to ${email}` });
     } catch (error) {
         console.log(error);
-        res.status(500).send({ message: "Internal server error" });
+        res.status(400).send({ message: "Internal server error" });
     }
 });
 
@@ -252,7 +252,7 @@ router.post("/login", async (req, res) => {
  *     responses:
  *       200:
  *         description: List of users.
- *       500:
+ *       400:
  *         description: Internal server error.
  */
 
@@ -263,7 +263,7 @@ router.get("/", roleMiddleware(["admin"]), async (req, res) => {
         });
         res.send(users);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(400).send(error);
         userLogger.log("error", "/get users error");
     }
 });
@@ -300,7 +300,7 @@ router.delete("/:id", roleMiddleware(["admin"]), async (req, res) => {
         res.send({ message: "User deleted successfully" });
         userLogger.log("info", `/delete/:id user with ${user.id}`);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(400).send(error);
         userLogger.log("error", "/delete users error");
     }
 });
@@ -358,7 +358,7 @@ router.delete("/:id", roleMiddleware(["admin"]), async (req, res) => {
  *                                       type: number
  *       404:
  *         description: Foydalanuvchi topilmadi
- *       500:
+ *       400:
  *         description: Server xatosi
  */
 
@@ -396,7 +396,7 @@ router.get(
         res.json({ user });
       } catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Server error" });
+        res.status(400).json({ error: "Server error" });
       }
     }
   );
