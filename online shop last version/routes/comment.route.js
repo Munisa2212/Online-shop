@@ -28,15 +28,15 @@ const { commentLogger } = require("../logger");
  *           schema:
  *             type: object
  *             properties:
- *               user_id:
- *                 type: integer
- *                 example: 1
  *               product_id:
  *                 type: integer
  *                 example: 2
  *               comment:
  *                 type: string
  *                 example: "This product is amazing!"
+ *               star:
+ *                 type: float
+ *                 example: 5
  *     responses:
  *       200:
  *         description: Comment created successfully
@@ -45,17 +45,21 @@ const { commentLogger } = require("../logger");
  *       500:
  *         description: Internal server error
  */
+
 app.post("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
-    const { user_id, product_id, comment } = req.body;
     try {
         let { error } = CommentValidation.validate(req.body);
         if (error) return res.status(400).send({ error: error.details[0].message });
-
-        const data = await Comment.create({ user_id, product_id, comment });
+        
+        let user_id  = req.user.id;
+        const { product_id, comment, star} = req.body;
+        console.log(req.user.id);
+        
+        const data = await Comment.create({ user_id, product_id, comment, star});
         commentLogger.log("info", "comment created successfully");
         res.send(data);
     } catch (error) {
-        res.send(error);
+        res.status(400).send(error);
         commentLogger.log("error", "comment post error");
     }
 });
@@ -97,23 +101,30 @@ app.post("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async 
  *           type: integer
  *           default: 10
  *         description: Number of results per page
+ *       - in: query
+ *         name: star
+ *         schema:
+ *           type: integer
+ *         description: Filter by star
  *     responses:
  *       200:
  *         description: List of comments
  *       500:
  *         description: Internal server error
  */
+
 app.get("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
     try {
-        let { user_id, comment_id, comment, page = 1, limit = 10 } = req.query;
+        let { user_id, comment_id, comment, star, page = 1, limit = 10 } = req.query;
         const one = {};
         page = parseInt(page);
         limit = parseInt(limit);
         const offset = (page - 1) * limit;
 
-        if (user_id) one.user_id = { [Op.like]: `%${user_id}%` };
+        if (user_id) one.user_id = user_id;
         if (comment_id) one.comment_id = { [Op.like]: `%${comment_id}%` };
         if (comment) one.comment = { [Op.like]: `%${comment}%` };
+        if(star) one.star = star 
 
         const { rows } = await Comment.findAndCountAll({
             where: one,
@@ -128,7 +139,7 @@ app.get("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (
         res.send(rows);
     } catch (error) {
         commentLogger.log("error", "comment get error");
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ error: error.message });
     }
 });
 
@@ -162,7 +173,7 @@ app.get("/:id", roleMiddleware(["admin", "user", "super-admin", "seller"]), asyn
         const data = await Comment.findByPk(id);
         res.send(data);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(400).send(error);
         commentLogger.log("error", "comment get by id error");
     }
 });
@@ -209,7 +220,7 @@ app.patch("/:id", roleMiddleware(["super-admin"]), async (req, res) => {
         commentLogger.log("info", `comment with ${id} id updated successfully`);
         res.send(data);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(400).send(error);
         commentLogger.log("error", "comment update error");
     }
 });

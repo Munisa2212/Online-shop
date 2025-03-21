@@ -20,12 +20,16 @@ const Comment = db.define("Comment",{
     type: DataTypes.STRING,
     allowNull: false,
   },
+  star: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  }
 })
 
 const CommentValidation = joi.object({
-  user_id: joi.number().required(),
   product_id: joi.number().required(),
   comment: joi.string().required(),
+  star: joi.number().max(5).min(0).required()
 })
 
 module.exports = { Comment, CommentValidation }

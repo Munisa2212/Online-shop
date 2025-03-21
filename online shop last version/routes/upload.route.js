@@ -46,8 +46,9 @@ const upload = multer({ storage: storage });
  *                   description: The path of the uploaded file
  *                   example: "/uploads/unique-file-name.jpg"
  */
+
 router.post("/", upload.single("file"), (req, res) => {
-    res.send({ url: `/uploads/${req.file.filename}` });
+    res.send({ url: `http://localhost:3009/uploads/${req.file.filename}` });
 });
 
 module.exports = router;
