@@ -41,6 +41,7 @@
 {"level":"info","message":"Order created successfully","module":"order"}
 {"level":"info","message":"/login with 2 id","module":"user"}
 {"level":"info","message":"/register with 1 id","module":"user"}
+<<<<<<< HEAD
 {"level":"info","message":"/register with 2 id","module":"user"}
 {"level":"info","message":"/verify with boltaboyevnurali55@gmail.com","module":"user"}
 {"level":"info","message":"/login with 2 id","module":"user"}
@@ -65,3 +66,11 @@
 {"level":"info","message":"/login with 1 id","module":"user"}
 {"level":"info","message":"category post created","module":"product"}
 {"level":"info","message":"comment created successfully","module":"auth"}
+=======
+{"level":"info","message":"/verify with behruzzzcoder@gmail.com","module":"user"}
+{"level":"error","message":"/register error","module":"user"}
+{"level":"info","message":"/register with 2 id","module":"user"}
+{"level":"info","message":"/register with 1 id","module":"user"}
+{"level":"info","message":"/verify with behruzzzcoder@gmail.com","module":"user"}
+{"level":"info","message":"/login with 1 id","module":"user"}
+>>>>>>> 1d210bf114b4f9d0e59de7fb80e66bd67ef56c5d

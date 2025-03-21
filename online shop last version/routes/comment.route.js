@@ -47,6 +47,15 @@ const { commentLogger } = require("../logger");
  */
 
 app.post("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
+<<<<<<< HEAD
+=======
+    let user_id = req.user.id
+    const { product_id, comment } = req.body;
+    let one = await Product.findOne({where:{id:product_id}})
+    if(!one){
+        return res.status(404).send({ error: "Product not found" });
+    }
+>>>>>>> 1d210bf114b4f9d0e59de7fb80e66bd67ef56c5d
     try {
         let { error } = CommentValidation.validate(req.body);
         if (error) return res.status(400).send({ error: error.details[0].message });
