@@ -46,7 +46,12 @@ const { commentLogger } = require("../logger");
  *         description: Internal server error
  */
 app.post("/", roleMiddleware(["admin", "user", "super-admin", "seller"]), async (req, res) => {
-    const { user_id, product_id, comment } = req.body;
+    let user_id = req.user.id
+    const { product_id, comment } = req.body;
+    let one = await Product.findOne({where:{id:product_id}})
+    if(!one){
+        return res.status(404).send({ error: "Product not found" });
+    }
     try {
         let { error } = CommentValidation.validate(req.body);
         if (error) return res.status(400).send({ error: error.details[0].message });
