@@ -88,7 +88,7 @@ router.post("/register", async (req, res) => {
         console.log(otp);
         sendEmail(email, otp);
         sendSMS(phone, otp)
-        res.send(`/verify email\nToken sent to ${email}`);
+        res.send({message: "User created successfully otp is sended to email and phone"});
         userLogger.log("info", `/register with ${newUser.id} id`);
     } catch (error) {
         res.status(404).send(error);
@@ -205,9 +205,6 @@ router.post("/resend-otp", async (req, res) => {
  *               password:
  *                 type: string
  *                 example: "password123"
- *               username:
- *                 type: string
- *                 example: "John Doe"
  *     responses:
  *       200:
  *         description: Login successful.
@@ -225,14 +222,14 @@ router.post("/login", async (req, res) => {
         let { password, email } = req.body;
         let user = await User.findOne({ where: { email: email } });
         if (!user) return res.status(404).send({ message: "User not found" });
-
         let match = bcrypt.compareSync(password, user.password);
         if (!match) return res.status(400).send({ message: "Wrong password" });
 
         if (user.status != "ACTIVE") return res.status(400).send({ message: "Verify your email first!" });
 
-        let token = jwt.sign({ id: user.id, role: user.role }, "sekret");
-        res.send({ Your_Token: token });
+        let refresh_token = jwt.sign({ id: user.id, role: user.role }, "sekret",{expiresIn: "1d"});
+        let access_token = jwt.sign({ id: user.id, role: user.role }, "sekret", { expiresIn: "15m" });
+        res.send({ refresh_token: refresh_token, access_token: access_token });
         userLogger.log("info", `/login with ${user.id} id`);
     } catch (err) {
         res.status(400).send(err);
@@ -400,5 +397,39 @@ router.get(
       }
     }
   );
-module.exports = router;
 
+/**
+ * @swagger
+ * /user/refresh:
+ *   get:
+ *     summary: Foydalanuvchi tokenini yangilash
+ *     description: Foydalanuvchi o‘zining eski tokeni orqali yangi access token oladi.
+ *     security:
+ *       - BearerAuth: []
+ *     tags:
+ *       - User
+ *     responses:
+ *       200:
+ *         description: Yangi access token qaytariladi
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 access_token:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR..."
+ *       401:
+ *         description: Avtorizatsiya xatosi
+ *       403:
+ *         description: Ruxsat etilmagan
+ */
+
+router.get("/refresh",roleMiddleware(["user", "admin", "super-admin", "seller"]),async(req,res)=>{
+  let id = req.user.id
+  let role = req.user.role
+  let access_token = jwt.sign({id: id,role: role},"sekret",{expiresIn: "15m"})
+  res.send({access_token: access_token})
+})
+
+module.exports = router;
