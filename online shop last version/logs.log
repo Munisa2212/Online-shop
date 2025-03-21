@@ -39,3 +39,4 @@
 {"level":"info","message":"/login with 2 id","module":"user"}
 {"level":"info","message":"/login with 2 id","module":"user"}
 {"level":"info","message":"Order created successfully","module":"order"}
+{"level":"info","message":"/login with 2 id","module":"user"}
